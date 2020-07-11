@@ -12,12 +12,25 @@
 #Include lib\PUM_API.ahk
 #Include lib\PUM.ahk
 
+APPNAME := "stahky"
+
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
+MouseGetPos, mx, my
+
+; auto-create *lnk pinnable shortcut file, when folder dragged-on-top of this app
+if (A_ScriptDir == A_WorkingDir)
+{
+	FileGetAttrib,A_args1_fattr, % A_Args[1]
+	if InStr(A_args1_fattr,"D") {
+		makePinShortcut(A_Args[1])
+	}
+}
+
 PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
 TaskbarSColor := lightenColor(TaskbarColor)
 
-searchPath := (FileExist(A_Args[1]) ? A_Args[1] : A_ScriptDir) . "\*"
+searchPath := (FileExist(A_Args[1]) ? A_Args[1] : A_WorkingDir) . "\*"
 offsetX := 0
 offsetY := 0
 DPIScaleRatio := (A_ScreenDPI / 96)
@@ -110,7 +123,6 @@ Loop, %searchPath%, 1
 	menu.add( mItem )
 }
 
-MouseGetPos, mx, my
 SysGet m, MonitorWorkArea, 1
 mpy := mBottom
 menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
@@ -119,6 +131,16 @@ item := menu.Show( mpx+offsetX, mpy+offsetY )
 
 pm.Destroy()
 ExitApp
+
+
+makePinShortcut(iPath) {
+	global APPNAME
+	Target := A_ScriptFullPath
+	SplitPath,iPath,outFileName
+	LinkFile := APPNAME . " for " . outFileName . ".lnk"
+	FileCreateShortcut, %Target%, %LinkFile%, %iPath%, "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
+	MsgBox Pinnable shortcut created: %LinkFile%
+}
 
 lightenColor(cHex, L:=2.64) {
 	R := L * (cHex>>16 & 0xFF)

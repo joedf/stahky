@@ -108,7 +108,7 @@ lightenColor(cHex, L:=2.64) {
 	R := L * (cHex>>16 & 0xFF)
 	G := L * (cHex>>8 & 0xFF)
 	B := L * (cHex & 0xFF)
-	return R<<16 | G<<8 | B<<0
+	return Format("0x{:X}", (R<<16 | G<<8 | B<<0) )
 }
 
 getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/viewtopic.php?p=297834#p297834

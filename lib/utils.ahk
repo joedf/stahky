@@ -88,6 +88,22 @@ isStahkyFile(fPath) {
 	return false
 }
 
+getSettingsOrDefaults(SCFile) {
+	global
+	IniRead, offsetX, %SCFile%,%APPNAME%,offsetX,0
+	IniRead, offsetY, %SCFile%,%APPNAME%,offsetY,0
+	IniRead, icoSize, %SCFile%,%APPNAME%,iconSize,24
+	IniRead, STAHKY_MAX_DEPTH, %SCFile%,%APPNAME%,STAHKY_MAX_DEPTH,5
+	IniRead, useDPIScaleRatio, %SCFile%,%APPNAME%,useDPIScaleRatio,1
+	IniRead, menuTextMargin, %SCFile%,%APPNAME%,menuTextMargin,85
+	IniRead, menuMarginX, %SCFile%,%APPNAME%,menuMarginX,4
+	IniRead, menuMarginY, %SCFile%,%APPNAME%,menuMarginY,4
+	IniRead, bgColor, %SCFile%,%APPNAME%,menuBGColor, % TaskbarColor ;0x101010
+	IniRead, sbgColor, %SCFile%,%APPNAME%,menuSelectedBGColor, % TaskbarSColor ;0x272727
+	IniRead, stextColor, %SCFile%,%APPNAME%,menuSelectedTextColor,0xFFFFFF
+	IniRead, textColor, %SCFile%,%APPNAME%,menuTextColor,0xFFFFFF
+}
+
 updateConfigFile(SCFile) {
 	global
 	IniWrite, % offsetX, %SCFile%,%APPNAME%,offsetX

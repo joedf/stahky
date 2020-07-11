@@ -37,18 +37,8 @@ PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
 TaskbarSColor := lightenColor(TaskbarColor)
 
 searchPath := (FileExist(A_Args[1]) ? A_Args[1] : A_WorkingDir) . "\*"
-IniRead, offsetX, %StahkyConfigFile%,%APPNAME%,offsetX,0
-IniRead, offsetY, %StahkyConfigFile%,%APPNAME%,offsetY,0
-IniRead, icoSize, %StahkyConfigFile%,%APPNAME%,iconSize,24
-IniRead, STAHKY_MAX_DEPTH, %StahkyConfigFile%,%APPNAME%,STAHKY_MAX_DEPTH,5
-IniRead, useDPIScaleRatio, %StahkyConfigFile%,%APPNAME%,useDPIScaleRatio,1
-IniRead, menuTextMargin, %StahkyConfigFile%,%APPNAME%,menuTextMargin,85
-IniRead, menuMarginX, %StahkyConfigFile%,%APPNAME%,menuMarginX,4
-IniRead, menuMarginY, %StahkyConfigFile%,%APPNAME%,menuMarginY,4
-IniRead, bgColor, %StahkyConfigFile%,%APPNAME%,menuBGColor, % TaskbarColor ;0x101010
-IniRead, sbgColor, %StahkyConfigFile%,%APPNAME%,menuSelectedBGColor, % TaskbarSColor ;0x272727
-IniRead, stextColor, %StahkyConfigFile%,%APPNAME%,menuSelectedTextColor,0xFFFFFF
-IniRead, textColor, %StahkyConfigFile%,%APPNAME%,menuTextColor,0xFFFFFF
+
+getSettingsOrDefaults(StahkyConfigFile)
 updateConfigFile(StahkyConfigFile)
 
 DPIScaleRatio := 1

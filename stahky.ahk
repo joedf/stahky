@@ -50,6 +50,7 @@ IniRead, stextColor, %StahkyConfigFile%,%APPNAME%,menuSelectedTextColor,0xFFFFFF
 IniRead, textColor, %StahkyConfigFile%,%APPNAME%,menuTextColor,0xFFFFFF
 updateConfigFile(StahkyConfigFile)
 
+DPIScaleRatio := 1
 if (useDPIScaleRatio) {
 	DPIScaleRatio := (A_ScreenDPI / 96)
 	icoSize *= DPIScaleRatio

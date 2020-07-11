@@ -1,2 +1,2 @@
 # stahky
- simplistic AHK version of [stacky](https://github.com/pawelt/stacky) for windows 10
+ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Windows 10

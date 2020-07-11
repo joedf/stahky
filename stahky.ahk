@@ -11,8 +11,11 @@
 #Include lib\PUM_API.ahk
 #Include lib\PUM.ahk
 
-
-MouseGetPos, mx, my
+DPIScaleRatio := (A_ScreenDPI / 96)
+icoSize := 24 * DPIScaleRatio
+menuTextMargin := 85 * DPIScaleRatio
+menuMarginX := 4 * DPIScaleRatio
+menuMarginY := 4 * DPIScaleRatio
 
 ; parameters of the PUM object, the manager of the menus
 pumParams := {"SelMethod" : "fill"        ;item selection method, may be frame,fill
@@ -30,11 +33,11 @@ pumParams := {"SelMethod" : "fill"        ;item selection method, may be frame,f
                 
 ;PUM_Menu parameters
 menuParams1 := {"bgcolor" : 0x101010    ;background color of the menu
-            , "iconssize" : 48          ;size of icons in the menu
+            , "iconssize" : icoSize     ;size of icons in the menu
             , "tcolor"    : 0xFFFFFF    ;text color of the menu items
-			, "textMargin" : 170
-			,"xmargin"   : 8
-			,"ymargin"   : 8 }
+			, "textMargin" : menuTextMargin
+			,"xmargin"   : menuMarginX
+			,"ymargin"   : menuMarginY }
 
 ;create an instance of PUM object, it is best to have only one of such in the program
 pm := new PUM( pumParams )
@@ -63,11 +66,11 @@ for k, LinkFile in menu_1
 }
 
 
+MouseGetPos, mx, my
 SysGet m, MonitorWorkArea, 1
 mpy := mBottom
-menuWidth := 170 + 48 + (3*8)
-DPIScaleRatio := (A_ScreenDPI / 96)
-mpx := mx - ( ((menuWidth)*DPIScaleRatio)//2 )
+menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
+mpx := mx - ( menuWidth//DPIScaleRatio )
 item := menu.Show( mpx, mpy )
 
 

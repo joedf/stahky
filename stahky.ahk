@@ -12,6 +12,10 @@
 #Include lib\PUM_API.ahk
 #Include lib\PUM.ahk
 
+CoordMode, Pixel, Screen
+PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
+TaskbarSColor := lightenColor(TaskbarColor)
+
 searchPath := A_ScriptDir . "\menu1\*"
 offsetX := 0
 offsetY := 0
@@ -20,8 +24,8 @@ icoSize := 24 * DPIScaleRatio
 menuTextMargin := 85 * DPIScaleRatio
 menuMarginX := 4 * DPIScaleRatio
 menuMarginY := 4 * DPIScaleRatio
-bgColor := 0x101010
-sbgColor := 0x272727
+bgColor := TaskbarColor ;0x101010
+sbgColor := TaskbarSColor ;0x272727
 stextColor := 0xFFFFFF
 textColor := 0xFFFFFF
 
@@ -38,7 +42,7 @@ pumParams := {"SelMethod" : "fill"        ;item selection method, may be frame,f
 	,"onshow"      : "PUM_out"  ;function which will be called before any menu shown using Show method
 	,"onclose"     : "Pum_out"  ;function called just before quitting from Show method
 	,mnemonicCMD : "select"}
-                
+
 ;PUM_Menu parameters
 menuParams1 := {"bgcolor" : bgColor    ;background color of the menu
             , "iconssize" : icoSize      ;size of icons in the menu
@@ -90,6 +94,12 @@ item := menu.Show( mpx+offsetX, mpy+offsetY )
 pm.Destroy()
 ExitApp
 
+lightenColor(cHex, L:=2.64) {
+	R := L * (cHex>>16 & 0xFF)
+	G := L * (cHex>>8 & 0xFF)
+	B := L * (cHex & 0xFF)
+	return R<<16 | G<<8 | B<<0
+}
 
 PUM_out( msg, obj ) {
 	if (msg == "onrun")

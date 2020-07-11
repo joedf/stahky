@@ -5,6 +5,7 @@
 ; https://github.com/pawelt/stacky
 ; https://web.archive.org/web/20130927190146/http://justafewlines.com/2013/04/stacky/
 
+#NoTrayIcon
 #SingleInstance, Force
 #NoEnv
 ; uses PUM by Deo

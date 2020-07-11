@@ -14,6 +14,7 @@
 
 APPNAME := "stahky"
 STAHKY_EXT := APPNAME . ".lnk"
+STAHKY_MAGIC_NUM := "5t4ky_1s_c0oL"
 
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
@@ -24,7 +25,7 @@ if (A_ScriptDir == A_WorkingDir)
 {
 	FileGetAttrib,A_args1_fattr, % A_Args[1]
 	if InStr(A_args1_fattr,"D") {
-		makePinShortcut(A_Args[1],STAHKY_EXT)
+		makeStahkyFile(A_Args[1])
 	}
 }
 
@@ -133,12 +134,32 @@ pm.Destroy()
 ExitApp
 
 
-makePinShortcut(iPath, iExt:="lnk") {
+makeStahkyFile(iPath) {
+	global STAHKY_EXT
+	global STAHKY_MAGIC_NUM
+
 	Target := A_ScriptFullPath
 	SplitPath,iPath,outFileName
-	LinkFile := outFileName . "." . iExt
+	LinkFile := outFileName . "." . STAHKY_EXT
 	FileCreateShortcut, %Target%, %LinkFile%, %iPath%, "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
-	MsgBox Pinnable shortcut created: %LinkFile%
+	;FileAppend,`n`n[stahky]`nstahky_magic_number=%STAHKY_MAGIC_NUM%
+	IniWrite,%STAHKY_MAGIC_NUM%,%LinkFile%,stahky,stahky_magic_number
+	MsgBox, 64, New Stahky created, Pinnable shortcut created: %LinkFile%
+}
+
+isStahkyFile(fPath) {
+	global STAHKY_MAGIC_NUM
+
+	SplitPath,%fPath%,,,_ext
+	if _ext in lnk
+	{
+		IniRead,_t,%fPath%,stahky,stahky_magic_number,0
+		if (_t == STAHKY_MAGIC_NUM) {
+			;MsgBox, 48, , STAHKY-LICIOUS!
+			return true
+		}
+	}
+	return false
 }
 
 lightenColor(cHex, L:=2.64) {
@@ -158,7 +179,7 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 	StringReplace, DefaultIcon, DefaultIcon, `%windir`%, %A_WinDir%,all
 	StringSplit, I, DefaultIcon, `,
 	DefaultIcon := I1 ":" RegExReplace(I2, "[^\d]+")
-	
+
 	if (StrLen(DefaultIcon) < 4) {
 		; default file icon, if all else fails
 		DefaultIcon := "shell32.dll:0"
@@ -170,28 +191,14 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 			DefaultIcon := OpenCommand . ":0"
 		}
 	}
-	
+
 	return DefaultIcon
 }
 
 PUM_out( msg, obj ) {
-	global STAHKY_EXT
-	
+
 	if (msg == "onrun")
 	{
-		; detect if running stackys from stacky
-		/*
-		if (_t := InStr(obj.path, ".", false, 0, 2)) {
-			_t := SubStr(obj.path,_t+1)
-			if _t in %STAHKY_EXT%
-			{
-				Run % obj.path
-				return
-			}
-		}
-		*/
-		
-		; otherwise do normal execute
 		Run % obj.path
 	}
 }

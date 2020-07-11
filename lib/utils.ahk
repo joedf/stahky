@@ -1,6 +1,9 @@
 
-MakeStahkyMenu( pMenu, searchPath, iPUM, PUM_options )
+MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 0 )
 {
+	global APPNAME
+	global STAHKY_MAX_DEPTH
+	
 	Loop, %searchPath%, 1
 	{
 		fPath := A_LoopFileFullPath
@@ -16,6 +19,35 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, PUM_options )
 		mItem := { "name": fNameNoExt
 			,"path": fPath
 			,"icon": OutIconChoice }
+		
+		if fExt in lnk
+		{
+			; display stachkys as submenus
+			if (OutTarget := isStahkyFile(fPath)) {
+				
+				; couldnt get from the stachky file config, so assume the target folder using the lnk's args
+				if !FileExist(OutTarget) {
+					FileGetShortcut,%fPath%,,,OutArgs
+					OutTarget := Trim(OutArgs,""""`t)
+				}
+				
+				; create and attach the stahky submenu, with a cap on recursion depth
+				if (recursion_CurrentDepth < STAHKY_MAX_DEPTH) {
+					
+					; recurse into sub-stachky-liciousnous
+					%A_ThisFunc%( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
+						,OutTarget . "\*"
+						,iPUM
+						,pMenuParams
+						,recursion_CurrentDepth+1  )
+				} else {
+					maxStahkyWarningMenu := (mItem["submenu"] := iPUM.CreateMenu( pMenuParams ))
+					maxStahkyWarningMenu.Add({ "name": "Overwhelmingly Stahky-licious! (Max = " . STAHKY_MAX_DEPTH . ")"
+						,"disabled": true
+						,"icon": A_ScriptFullPath })
+				}
+			}
+		}
 
 		pMenu.add( mItem )
 	}
@@ -34,6 +66,7 @@ makeStahkyFile(iPath) {
 	FileCreateShortcut, %Target%, %LinkFile%, %iPath%, "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
 	;FileAppend,`n`n[stahky]`nstahky_magic_number=%STAHKY_MAGIC_NUM%
 	IniWrite,%STAHKY_MAGIC_NUM%,%LinkFile%,%APPNAME%,stahky_magic_number
+	IniWrite,%iPath%,%LinkFile%,%APPNAME%,targetPath
 	MsgBox, 64, New Stahky created, Pinnable shortcut created: %LinkFile%
 }
 
@@ -41,13 +74,15 @@ isStahkyFile(fPath) {
 	global APPNAME
 	global STAHKY_MAGIC_NUM
 
-	SplitPath,%fPath%,,,_ext
+	SplitPath,fPath,,,_ext
 	if _ext in lnk
 	{
 		IniRead,_t,%fPath%,%APPNAME%,stahky_magic_number,0
 		if (_t == STAHKY_MAGIC_NUM) {
 			;MsgBox, 48, , STAHKY-LICIOUS!
-			return true
+			; attempt to get target folder from stachky config in the file
+			IniRead,OutTarget,%fPath%,%APPNAME%,targetPath,1
+			return OutTarget
 		}
 	}
 	return false
@@ -58,6 +93,7 @@ updateConfigFile(SCFile) {
 	IniWrite, % offsetX, %SCFile%,%APPNAME%,offsetX
 	IniWrite, % offsetY, %SCFile%,%APPNAME%,offsetY
 	IniWrite, % icoSize, %SCFile%,%APPNAME%,iconSize
+	IniWrite, % STAHKY_MAX_DEPTH, %SCFile%,%APPNAME%,STAHKY_MAX_DEPTH
 	IniWrite, % useDPIScaleRatio, %SCFile%,%APPNAME%,useDPIScaleRatio
 	IniWrite, % menuTextMargin, %SCFile%,%APPNAME%,menuTextMargin
 	IniWrite, % menuMarginX, %SCFile%,%APPNAME%,menuMarginX

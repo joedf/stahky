@@ -40,6 +40,7 @@ searchPath := (FileExist(A_Args[1]) ? A_Args[1] : A_WorkingDir) . "\*"
 IniRead, offsetX, %StahkyConfigFile%,%APPNAME%,offsetX,0
 IniRead, offsetY, %StahkyConfigFile%,%APPNAME%,offsetY,0
 IniRead, icoSize, %StahkyConfigFile%,%APPNAME%,iconSize,24
+IniRead, STAHKY_MAX_DEPTH, %StahkyConfigFile%,%APPNAME%,STAHKY_MAX_DEPTH,5
 IniRead, useDPIScaleRatio, %StahkyConfigFile%,%APPNAME%,useDPIScaleRatio,1
 IniRead, menuTextMargin, %StahkyConfigFile%,%APPNAME%,menuTextMargin,85
 IniRead, menuMarginX, %StahkyConfigFile%,%APPNAME%,menuMarginX,4
@@ -74,7 +75,7 @@ pumParams := {"SelMethod" : "fill"        ;item selection method, may be frame,f
 	,mnemonicCMD : "select"}
 
 ;PUM_Menu parameters
-menuParams1 := {"bgcolor" : bgColor    ;background color of the menu
+menuParams := {"bgcolor" : bgColor    ;background color of the menu
             , "iconssize" : icoSize      ;size of icons in the menu
             , "tcolor"    : textColor    ;text color of the menu items
 			, "textMargin" : menuTextMargin
@@ -83,11 +84,11 @@ menuParams1 := {"bgcolor" : bgColor    ;background color of the menu
 
 ;create an instance of PUM object, it is best to have only one of such in the program
 pm := new PUM( pumParams )
+; creating popup menu, represented by PUM_Menu object with given parameters
+menu := pm.CreateMenu( menuParams )
 
-;creating popup menu, represented by PUM_Menu object with given parameters
-menu := pm.CreateMenu( menuParams1 )
-
-MakeStahkyMenu(menu, searchPath, pm, pumParams)
+; Populate Stahkys!
+MakeStahkyMenu(menu, searchPath, pm, menuParams )
 
 SysGet m, MonitorWorkArea, 1
 mpy := mBottom

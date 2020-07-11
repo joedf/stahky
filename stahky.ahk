@@ -13,6 +13,7 @@
 #Include lib\PUM.ahk
 
 APPNAME := "stahky"
+STAHKY_EXT := APPNAME . ".lnk"
 
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
@@ -23,7 +24,7 @@ if (A_ScriptDir == A_WorkingDir)
 {
 	FileGetAttrib,A_args1_fattr, % A_Args[1]
 	if InStr(A_args1_fattr,"D") {
-		makePinShortcut(A_Args[1])
+		makePinShortcut(A_Args[1],STAHKY_EXT)
 	}
 }
 
@@ -82,7 +83,6 @@ Loop, %searchPath%, 1
 	if (!fNameNoExt)
 		fNameNoExt := "." . fExt
 	
-	OutTarget := fPath
 	OutIconChoice := ""
 	if fExt in exe,dll
 		OutIconChoice := fPath  . ":0"
@@ -116,7 +116,7 @@ Loop, %searchPath%, 1
 
 
 	mItem := { "name": fNameNoExt
-		,"path": OutTarget
+		,"path": fPath
 		,"icon": OutIconChoice }
 
 	MenuItems.push( mItem )
@@ -133,11 +133,10 @@ pm.Destroy()
 ExitApp
 
 
-makePinShortcut(iPath) {
-	global APPNAME
+makePinShortcut(iPath, iExt:="lnk") {
 	Target := A_ScriptFullPath
 	SplitPath,iPath,outFileName
-	LinkFile := APPNAME . " for " . outFileName . ".lnk"
+	LinkFile := outFileName . "." . iExt
 	FileCreateShortcut, %Target%, %LinkFile%, %iPath%, "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
 	MsgBox Pinnable shortcut created: %LinkFile%
 }
@@ -176,6 +175,23 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 }
 
 PUM_out( msg, obj ) {
+	global STAHKY_EXT
+	
 	if (msg == "onrun")
+	{
+		; detect if running stackys from stacky
+		/*
+		if (_t := InStr(obj.path, ".", false, 0, 2)) {
+			_t := SubStr(obj.path,_t+1)
+			if _t in %STAHKY_EXT%
+			{
+				Run % obj.path
+				return
+			}
+		}
+		*/
+		
+		; otherwise do normal execute
 		Run % obj.path
+	}
 }

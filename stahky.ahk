@@ -87,7 +87,7 @@ pm := new PUM( pumParams )
 ;creating popup menu, represented by PUM_Menu object with given parameters
 menu := pm.CreateMenu( menuParams1 )
 
-MakeStahkyMenu(menu, searchPath)
+MakeStahkyMenu(menu, searchPath, pm, pumParams)
 
 SysGet m, MonitorWorkArea, 1
 mpy := mBottom

@@ -9,6 +9,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
 - Appearance settings -> Edit stahky.ini
 - You can have stahky shortcuts within your folder for custom submenus. Stahky-licious!
   - Stahkys that have circular references will be capped by the recursion depth setting `STAHKY_MAX_DEPTH` (default is 5).
+- Press <kbd>WheelButton</kbd> / <kbd>MButton</kbd> on a Stahky to open its folder for easy editing.
 
 ## Screenshots
 ![screenshot1](res/screenshots/s1.png)

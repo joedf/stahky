@@ -7,6 +7,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
   - You should edit the shortcut's icon before pinning it.
   - Once pinned, you can delete the shortcut file.
 - Appearance settings -> Edit stahky.ini
+- You can have stahky shortcuts within your folder for custom submenus. Stahky-licious!
 
 ## Screenshot
 ![screenshot1](res/screenshots/s1.png)

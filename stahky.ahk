@@ -106,7 +106,7 @@ Loop, %searchPath%, 1
 		if OutTargetExt in exe,dll
 			OutIconChoice := OutTarget  . ":0"
 		if (OutIcon && OutIconNum)
-			OutIconChoice := OutIcon  . ":" . OutIconNum
+			OutIconChoice := OutIcon  . ":" . (OutIconNum-1)
 	}
 	; support windows internet shortcut files *.url
 	else if fExt in url

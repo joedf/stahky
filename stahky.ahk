@@ -15,6 +15,7 @@
 APPNAME := "stahky"
 STAHKY_EXT := APPNAME . ".lnk"
 STAHKY_MAGIC_NUM := "5t4ky_1s_c0oL"
+StahkyConfigFile := A_ScriptDir "\" APPNAME ".ini"
 
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
@@ -33,17 +34,26 @@ PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
 TaskbarSColor := lightenColor(TaskbarColor)
 
 searchPath := (FileExist(A_Args[1]) ? A_Args[1] : A_WorkingDir) . "\*"
-offsetX := 0
-offsetY := 0
-DPIScaleRatio := (A_ScreenDPI / 96)
-icoSize := 24 * DPIScaleRatio
-menuTextMargin := 85 * DPIScaleRatio
-menuMarginX := 4 * DPIScaleRatio
-menuMarginY := 4 * DPIScaleRatio
-bgColor := TaskbarColor ;0x101010
-sbgColor := TaskbarSColor ;0x272727
-stextColor := 0xFFFFFF
-textColor := 0xFFFFFF
+IniRead, offsetX, %StahkyConfigFile%,%APPNAME%,offsetX,0
+IniRead, offsetY, %StahkyConfigFile%,%APPNAME%,offsetY,0
+IniRead, icoSize, %StahkyConfigFile%,%APPNAME%,iconSize,24
+IniRead, useDPIScaleRatio, %StahkyConfigFile%,%APPNAME%,useDPIScaleRatio,1
+IniRead, menuTextMargin, %StahkyConfigFile%,%APPNAME%,menuTextMargin,85
+IniRead, menuMarginX, %StahkyConfigFile%,%APPNAME%,menuMarginX,4
+IniRead, menuMarginY, %StahkyConfigFile%,%APPNAME%,menuMarginY,4
+IniRead, bgColor, %StahkyConfigFile%,%APPNAME%,menuBGColor, % TaskbarColor ;0x101010
+IniRead, sbgColor, %StahkyConfigFile%,%APPNAME%,menuSelectedBGColor, % TaskbarSColor ;0x272727
+IniRead, stextColor, %StahkyConfigFile%,%APPNAME%,menuSelectedTextColor,0xFFFFFF
+IniRead, textColor, %StahkyConfigFile%,%APPNAME%,menuTextColor,0xFFFFFF
+updateConfigFile(StahkyConfigFile)
+
+if (useDPIScaleRatio) {
+	DPIScaleRatio := (A_ScreenDPI / 96)
+	icoSize *= DPIScaleRatio
+	menuTextMargin *= DPIScaleRatio
+	menuMarginX *= DPIScaleRatio
+	menuMarginY *= DPIScaleRatio
+}
 
 ; parameters of the PUM object, the manager of the menus
 pumParams := {"SelMethod" : "fill"        ;item selection method, may be frame,fill
@@ -135,6 +145,7 @@ ExitApp
 
 
 makeStahkyFile(iPath) {
+	global APPNAME
 	global STAHKY_EXT
 	global STAHKY_MAGIC_NUM
 
@@ -143,23 +154,39 @@ makeStahkyFile(iPath) {
 	LinkFile := outFileName . "." . STAHKY_EXT
 	FileCreateShortcut, %Target%, %LinkFile%, %iPath%, "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
 	;FileAppend,`n`n[stahky]`nstahky_magic_number=%STAHKY_MAGIC_NUM%
-	IniWrite,%STAHKY_MAGIC_NUM%,%LinkFile%,stahky,stahky_magic_number
+	IniWrite,%STAHKY_MAGIC_NUM%,%LinkFile%,%APPNAME%,stahky_magic_number
 	MsgBox, 64, New Stahky created, Pinnable shortcut created: %LinkFile%
 }
 
 isStahkyFile(fPath) {
+	global APPNAME
 	global STAHKY_MAGIC_NUM
 
 	SplitPath,%fPath%,,,_ext
 	if _ext in lnk
 	{
-		IniRead,_t,%fPath%,stahky,stahky_magic_number,0
+		IniRead,_t,%fPath%,%APPNAME%,stahky_magic_number,0
 		if (_t == STAHKY_MAGIC_NUM) {
 			;MsgBox, 48, , STAHKY-LICIOUS!
 			return true
 		}
 	}
 	return false
+}
+
+updateConfigFile(SCFile) {
+	global
+	IniWrite, % offsetX, %SCFile%,%APPNAME%,offsetX
+	IniWrite, % offsetY, %SCFile%,%APPNAME%,offsetY
+	IniWrite, % icoSize, %SCFile%,%APPNAME%,iconSize
+	IniWrite, % useDPIScaleRatio, %SCFile%,%APPNAME%,useDPIScaleRatio
+	IniWrite, % menuTextMargin, %SCFile%,%APPNAME%,menuTextMargin
+	IniWrite, % menuMarginX, %SCFile%,%APPNAME%,menuMarginX
+	IniWrite, % menuMarginY, %SCFile%,%APPNAME%,menuMarginY
+	IniWrite, % bgColor, %SCFile%,%APPNAME%,menuBGColor
+	IniWrite, % sbgColor, %SCFile%,%APPNAME%,menuSelectedBGColor
+	IniWrite, % stextColor, %SCFile%,%APPNAME%,menuSelectedTextColor
+	IniWrite, % textColor, %SCFile%,%APPNAME%,menuTextColor
 }
 
 lightenColor(cHex, L:=2.64) {
@@ -178,7 +205,6 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 	StringReplace, DefaultIcon, DefaultIcon, `%ProgramFiles`%, %A_ProgramFiles%,all
 	StringReplace, DefaultIcon, DefaultIcon, `%windir`%, %A_WinDir%,all
 	StringSplit, I, DefaultIcon, `,
-	DefaultIcon := I1 ":" RegExReplace(I2, "[^\d]+")
 	DefaultIcon := I1 ":" RegExReplace(I2, "[^\d-]+") ;clean index number, but support negatives
 
 	if (StrLen(DefaultIcon) < 4) {

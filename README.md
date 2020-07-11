@@ -1,2 +1,2 @@
 # stahky
- simplistic AHK version of stacky for windows 10
+ simplistic AHK version of [stacky](https://github.com/pawelt/stacky) for windows 10

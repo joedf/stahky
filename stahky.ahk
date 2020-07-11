@@ -179,6 +179,7 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 	StringReplace, DefaultIcon, DefaultIcon, `%windir`%, %A_WinDir%,all
 	StringSplit, I, DefaultIcon, `,
 	DefaultIcon := I1 ":" RegExReplace(I2, "[^\d]+")
+	DefaultIcon := I1 ":" RegExReplace(I2, "[^\d-]+") ;clean index number, but support negatives
 
 	if (StrLen(DefaultIcon) < 4) {
 		; default file icon, if all else fails

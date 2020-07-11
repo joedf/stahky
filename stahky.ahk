@@ -12,6 +12,7 @@
 #Include lib\PUM_API.ahk
 #Include lib\PUM.ahk
 
+CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
 TaskbarSColor := lightenColor(TaskbarColor)

@@ -8,6 +8,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
   - Once pinned, you can delete the shortcut file.
 - Appearance settings -> Edit stahky.ini
 - You can have stahky shortcuts within your folder for custom submenus. Stahky-licious!
+  - Stahkys that have circular references will be capped by the recursion depth setting `STAHKY_MAX_DEPTH` (default is 5).
 
 ## Screenshot
 ![screenshot1](res/screenshots/s1.png)

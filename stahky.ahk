@@ -87,56 +87,7 @@ pm := new PUM( pumParams )
 ;creating popup menu, represented by PUM_Menu object with given parameters
 menu := pm.CreateMenu( menuParams1 )
 
-MenuItems := []
-Loop, %searchPath%, 1
-{
-    fPath := A_LoopFileFullPath
-	fExt := A_LoopFileExt
-	SplitPath,fPath,,,,fNameNoExt
-	
-	; support filenames like .gitignore, LICENSE
-	if (!fNameNoExt)
-		fNameNoExt := "." . fExt
-	
-	OutIconChoice := ""
-	if fExt in exe,dll
-		OutIconChoice := fPath  . ":0"
-
-	; support windows shortcut/link files *.lnk
-	if fExt in lnk
-	{
-		FileGetShortcut, %fPath%, OutTarget,,,, OutIcon, OutIconNum
-		SplitPath,OutTarget,,,OutTargetExt
-		if OutTargetExt in exe,dll
-			OutIconChoice := OutTarget  . ":0"
-		if (OutIcon && OutIconNum)
-			OutIconChoice := OutIcon  . ":" . (OutIconNum-1)
-	}
-	; support windows internet shortcut files *.url
-	else if fExt in url
-	{
-		IniRead, OutIcon, %fPath%, InternetShortcut, IconFile
-		IniRead, OutIconNum, %fPath%, InternetShortcut, IconIndex, 0
-		if FileExist(OutIcon)
-			OutIconChoice := OutIcon  . ":" . OutIconNum
-	}
-	
-	; support basic folder
-	if (InStr(A_LoopFileAttrib,"D"))
-		OutIconChoice := "shell32.dll:4"
-	
-	; support associated filetypes
-	else if (StrLen(OutIconChoice) < 4)
-		OutIconChoice := getExtIcon(fExt)
-
-
-	mItem := { "name": fNameNoExt
-		,"path": fPath
-		,"icon": OutIconChoice }
-
-	MenuItems.push( mItem )
-	menu.add( mItem )
-}
+MakeStahkyMenu(menu, searchPath)
 
 SysGet m, MonitorWorkArea, 1
 mpy := mBottom

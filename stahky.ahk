@@ -8,8 +8,8 @@
 
 #NoEnv
 ; uses PUM by Deo
-#Include PUM_API.ahk
-#Include PUM.ahk
+#Include lib\PUM_API.ahk
+#Include lib\PUM.ahk
 
 
 MouseGetPos, mx, my

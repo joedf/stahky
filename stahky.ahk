@@ -5,36 +5,43 @@
 ; https://github.com/pawelt/stacky
 ; https://web.archive.org/web/20130927190146/http://justafewlines.com/2013/04/stacky/
 
-
+#SingleInstance, Force
 #NoEnv
 ; uses PUM by Deo
 #Include lib\PUM_API.ahk
 #Include lib\PUM.ahk
 
+searchPath := A_ScriptDir . "\menu1\*"
+offsetX := 0
+offsetY := 0
 DPIScaleRatio := (A_ScreenDPI / 96)
 icoSize := 24 * DPIScaleRatio
 menuTextMargin := 85 * DPIScaleRatio
 menuMarginX := 4 * DPIScaleRatio
 menuMarginY := 4 * DPIScaleRatio
+bgColor := 0x101010
+sbgColor := 0x272727
+stextColor := 0xFFFFFF
+textColor := 0xFFFFFF
 
 ; parameters of the PUM object, the manager of the menus
 pumParams := {"SelMethod" : "fill"        ;item selection method, may be frame,fill
-	;,"selTColor"   : -1        ;selection text color
-	,"selBGColor"  : 0x272727       ;selection background color, -1 means invert current color
+	,"selTColor"   : stextColor ;selection text color
+	,"selBGColor"  : sbgColor   ;selection background color, -1 means invert current color
 	,"oninit"      : "PUM_out"  ;function which will be called when any menu going to be opened
 	,"onuninit"    : "PUM_out"  ;function which will be called when any menu going to be closing
 	,"onselect"    : "PUM_out"  ;function which will be called when any item selected with mouse (hovered)
 	,"onrbutton"   : "PUM_out"  ;function which will be called when any item right clicked
 	,"onmbutton"   : "PUM_out"  ;function which will be called when any item clicked with middle mouse button
 	,"onrun"       : "PUM_out"  ;function which will be called when any item clicked with left mouse button
-	,"onshow"      : "PUM_out"      ;function which will be called before any menu shown using Show method
-	,"onclose"     : "Pum_out"     ;function called just before quitting from Show method
+	,"onshow"      : "PUM_out"  ;function which will be called before any menu shown using Show method
+	,"onclose"     : "Pum_out"  ;function called just before quitting from Show method
 	,mnemonicCMD : "select"}
                 
 ;PUM_Menu parameters
-menuParams1 := {"bgcolor" : 0x101010    ;background color of the menu
-            , "iconssize" : icoSize     ;size of icons in the menu
-            , "tcolor"    : 0xFFFFFF    ;text color of the menu items
+menuParams1 := {"bgcolor" : bgColor    ;background color of the menu
+            , "iconssize" : icoSize      ;size of icons in the menu
+            , "tcolor"    : textColor    ;text color of the menu items
 			, "textMargin" : menuTextMargin
 			,"xmargin"   : menuMarginX
 			,"ymargin"   : menuMarginY }
@@ -46,23 +53,29 @@ pm := new PUM( pumParams )
 menu := pm.CreateMenu( menuParams1 )
 
 
-
-menu_1 := []
-Loop, %A_ScriptDir%\menu1\*, 1
-    menu_1.push(A_LoopFileFullPath)
-
-lastMenuItem:=0
-
-for k, LinkFile in menu_1
+Loop, %searchPath%, 1
 {
-	SplitPath,LinkFile,,,OutExtension,fNameNoExt
+    fPath := A_LoopFileFullPath
+	SplitPath,fPath,,,,fNameNoExt
 	
-	if (OutExtension == "lnk")
-		FileGetShortcut, %LinkFile%, OutTarget, OutDir, OutArgs, OutDescription, OutIcon, OutIconNum, OutRunState
-	else
-		OutTarget := LinkFile
+	OutTarget := fPath
+	OutIconChoice := fPath  . ":0"
+
+	if (A_LoopFileExt == "lnk") {
+		FileGetShortcut, %fPath%, OutTarget,,,, OutIcon, OutIconNum
+		OutIconChoice := OutTarget  . ":0"
+		if (OutIcon && OutIconNum)
+			OutIconChoice := OutIcon  . ":" . OutIconNum
+	}
 	
-	lastMenuItem := menu.add( { "name" : fNameNoExt, "icon" : OutTarget . ":0"  } )
+	if (InStr(A_LoopFileAttrib,"D"))
+		OutIconChoice := "shell32.dll:4"
+	
+	mItem := { "name": fNameNoExt
+		,"path": OutTarget
+		,"icon": OutIconChoice }
+
+	menu.add( mItem )
 }
 
 
@@ -71,29 +84,13 @@ SysGet m, MonitorWorkArea, 1
 mpy := mBottom
 menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
 mpx := mx - ( menuWidth//DPIScaleRatio )
-item := menu.Show( mpx, mpy )
+item := menu.Show( mpx+offsetX, mpy+offsetY )
 
-
+pm.Destroy()
 ExitApp
-return
 
 
-PUM_out( msg, obj )
-{
- /*
-  if ( msg = "onselect" )
-  {
-    rect := obj.GetRECT()
-    CoordMode, ToolTip, Screen
-    tooltip,% "Selected: " obj.name,% rect.right,% rect.top
-  }
-  if ( msg ~= "oninit|onuninit|onshow|onclose" )
-    tooltip % "menu " msg ": " obj.handle
-  if ( msg = "onrbutton" )
-    tooltip % "Right clicked: " obj.name
-  if ( msg = "onmbutton" )
-    tooltip % "Middle clicked: " obj.name
-  if ( msg = "onrun" )
-    tooltip % "Item runned: " obj.name
-*/
+PUM_out( msg, obj ) {
+	if (msg == "onrun")
+		Run % obj.path
 }

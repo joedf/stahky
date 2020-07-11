@@ -17,7 +17,7 @@ CoordMode, Pixel, Screen
 PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
 TaskbarSColor := lightenColor(TaskbarColor)
 
-searchPath := A_ScriptDir . "\menu1\*"
+searchPath := (FileExist(A_Args[1]) ? A_Args[1] : A_ScriptDir) . "\*"
 offsetX := 0
 offsetY := 0
 DPIScaleRatio := (A_ScreenDPI / 96)
@@ -58,32 +58,57 @@ pm := new PUM( pumParams )
 ;creating popup menu, represented by PUM_Menu object with given parameters
 menu := pm.CreateMenu( menuParams1 )
 
-
+MenuItems := []
 Loop, %searchPath%, 1
 {
     fPath := A_LoopFileFullPath
+	fExt := A_LoopFileExt
 	SplitPath,fPath,,,,fNameNoExt
 	
+	; support filenames like .gitignore, LICENSE
+	if (!fNameNoExt)
+		fNameNoExt := "." . fExt
+	
 	OutTarget := fPath
-	OutIconChoice := fPath  . ":0"
+	OutIconChoice := ""
+	if fExt in exe,dll
+		OutIconChoice := fPath  . ":0"
 
-	if (A_LoopFileExt == "lnk") {
+	; support windows shortcut/link files *.lnk
+	if fExt in lnk
+	{
 		FileGetShortcut, %fPath%, OutTarget,,,, OutIcon, OutIconNum
-		OutIconChoice := OutTarget  . ":0"
+		SplitPath,OutTarget,,,OutTargetExt
+		if OutTargetExt in exe,dll
+			OutIconChoice := OutTarget  . ":0"
 		if (OutIcon && OutIconNum)
 			OutIconChoice := OutIcon  . ":" . OutIconNum
 	}
+	; support windows internet shortcut files *.url
+	else if fExt in url
+	{
+		IniRead, OutIcon, %fPath%, InternetShortcut, IconFile
+		IniRead, OutIconNum, %fPath%, InternetShortcut, IconIndex, 0
+		if FileExist(OutIcon)
+			OutIconChoice := OutIcon  . ":" . OutIconNum
+	}
 	
+	; support basic folder
 	if (InStr(A_LoopFileAttrib,"D"))
 		OutIconChoice := "shell32.dll:4"
 	
+	; support associated filetypes
+	else if (StrLen(OutIconChoice) < 4)
+		OutIconChoice := getExtIcon(fExt)
+
+
 	mItem := { "name": fNameNoExt
 		,"path": OutTarget
 		,"icon": OutIconChoice }
 
+	MenuItems.push( mItem )
 	menu.add( mItem )
 }
-
 
 MouseGetPos, mx, my
 SysGet m, MonitorWorkArea, 1
@@ -100,6 +125,32 @@ lightenColor(cHex, L:=2.64) {
 	G := L * (cHex>>8 & 0xFF)
 	B := L * (cHex & 0xFF)
 	return R<<16 | G<<8 | B<<0
+}
+
+getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/viewtopic.php?p=297834#p297834
+	I1 := I2:= ""
+	RegRead, from, HKEY_CLASSES_ROOT, .%Ext%
+	RegRead, DefaultIcon, HKEY_CLASSES_ROOT, %from%\DefaultIcon
+	StringReplace, DefaultIcon, DefaultIcon, `",,all
+	StringReplace, DefaultIcon, DefaultIcon, `%SystemRoot`%, %A_WinDir%,all
+	StringReplace, DefaultIcon, DefaultIcon, `%ProgramFiles`%, %A_ProgramFiles%,all
+	StringReplace, DefaultIcon, DefaultIcon, `%windir`%, %A_WinDir%,all
+	StringSplit, I, DefaultIcon, `,
+	DefaultIcon := I1 ":" RegExReplace(I2, "[^\d]+")
+	
+	if (StrLen(DefaultIcon) < 4) {
+		; default file icon, if all else fails
+		DefaultIcon := "shell32.dll:0"
+		
+		;windows default to the OpenCommand if available
+		RegRead, OpenCommand, HKEY_CLASSES_ROOT, %from%\shell\open\command
+		if (OpenCommand) {
+			OpenCommand := StrSplit(OpenCommand,"""","""`t`n`r")[2]
+			DefaultIcon := OpenCommand . ":0"
+		}
+	}
+	
+	return DefaultIcon
 }
 
 PUM_out( msg, obj ) {

@@ -15,10 +15,13 @@
 #Include lib\PUM_API.ahk
 #Include lib\PUM.ahk
 
-APPNAME := "stahky"
-STAHKY_EXT := APPNAME . ".lnk"
+APP_NAME := "stahky"
+APP_VERSION := "0.1.00.00"
+APP_REVISION := "2020/07/11"
+
+STAHKY_EXT := APP_NAME . ".lnk"
 STAHKY_MAGIC_NUM := "5t4ky_1s_c0oL"
-StahkyConfigFile := A_ScriptDir "\" APPNAME ".ini"
+StahkyConfigFile := A_ScriptDir "\" APP_NAME ".ini"
 
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
@@ -35,6 +38,11 @@ if (A_ScriptDir == A_WorkingDir)
 
 PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
 TaskbarSColor := lightenColor(TaskbarColor)
+
+; check for first run, if we want to show the intro dialog
+G_FirstRun_Trigger := false
+if !FileExist(StahkyConfigFile)
+	FirstRun_Trigger()
 
 searchPath := (FileExist(A_Args[1]) ? A_Args[1] : A_WorkingDir) . "\*"
 
@@ -87,19 +95,29 @@ mpx := mx - ( menuWidth//DPIScaleRatio )
 item := menu.Show( mpx+offsetX, mpy+offsetY )
 
 pm.Destroy()
-ExitApp
+
+; First Run triggered - don't auto-exit
+if (!G_FirstRun_Trigger)
+	ExitApp
 
 
 PUM_out( msg, obj ) {
 
+	; run item normally
 	if (msg == "onrun")
 	{
 		Run % obj.path
 	}
 	
+	; On MButton, open the folder if we have a stahky
 	if (msg == "onmbutton") {
 		if (isStahkyFile(obj.path))
 			SplitPath, % obj.path,,outDir
 			Run % outDir
+	}
+	
+	; On RButton, open the about/firsttime use dialog
+	if (msg == "onrbutton") {
+		FirstRun_Trigger()
 	}
 }

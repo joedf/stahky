@@ -169,6 +169,14 @@ getItemIcon(fPath) {
 			OutIconChoice := OutTarget  . ":0"
 		if (OutIcon && OutIconNum)
 			OutIconChoice := OutIcon  . ":" . (OutIconNum-1)
+		else {
+			; Support shortcuts to folders with no custom icon set (default)
+			FileGetAttrib,_attr,%OutTarget%
+			if (InStr(_attr,"D")) {
+				; display default icon instead of blank file icon
+				OutIconChoice := "imageres.dll:4"
+			}
+		}
 	}
 	; support windows internet shortcut files *.url
 	else if fExt in url

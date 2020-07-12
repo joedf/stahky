@@ -23,6 +23,9 @@ STAHKY_EXT := APP_NAME . ".lnk"
 STAHKY_MAGIC_NUM := "5t4ky_1s_c0oL"
 StahkyConfigFile := A_ScriptDir "\" APP_NAME ".ini"
 
+; AutoHotkey behavioural settings needed
+GroupAdd APP_Self_WinGroup, ahk_id %A_ScriptHwnd%
+GroupAdd APP_Self_WinGroup, % "ahk_pid " DllCall("GetCurrentProcessId")
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 MouseGetPos, mx, my
@@ -105,7 +108,17 @@ pm.Destroy()
 ; First Run triggered - don't auto-exit
 if (!G_FirstRun_Trigger)
 	ExitApp
+return
 
+; PUM's right-click / rbutton handler is not reliable
+; do some extra handling here
+; https://autohotkey.com/board/topic/94970-ifwinactive-reference-running-autohotkey-window/#entry598885
+#IfWinExist ahk_group APP_Self_WinGroup
++#a::
+~$*RButton::
+	FirstRun_Trigger()
+return
+#IfWinExist
 
 PUM_out( msg, obj ) {
 

@@ -199,10 +199,12 @@ FirstRun_Trigger() {
 	; prevent program auto exiting if we are displaying this dialog
 	G_FirstRun_Trigger := true
 	
+	hAppLogo := LoadPicture(A_ScriptDir . "\res\app48.png")
+	
 	Gui, AboutDialog:New, +LastFound +AlwaysOnTop +ToolWindow
 	Gui, AboutDialog:Margin, 10, -7
 	Gui, Color, white
-	Gui, Add, Picture, x12 y9, C:\Users\joedf\Documents\GitHub\stahky\res\app48.png
+	Gui, Add, Picture, x12 y9, % "HBITMAP:*" hAppLogo
 	Gui, Font, s20 bold, Segoe UI
 	Gui, Add, Text, x72 y2, %APP_NAME%
 	Gui, Font, s9 norm

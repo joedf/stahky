@@ -16,3 +16,4 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
 ## Screenshots
 ![screenshot1](res/screenshots/s1.png)
 ![screenshot2](res/screenshots/s2.png)
+![screenshot3](res/screenshots/s3.png)

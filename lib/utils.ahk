@@ -199,12 +199,15 @@ FirstRun_Trigger() {
 	; prevent program auto exiting if we are displaying this dialog
 	G_FirstRun_Trigger := true
 	
-	hAppLogo := LoadPicture(A_ScriptDir . "\res\app48.png")
-	
 	Gui, AboutDialog:New, +LastFound +AlwaysOnTop +ToolWindow
 	Gui, AboutDialog:Margin, 10, -7
 	Gui, Color, white
-	Gui, Add, Picture, x12 y9, % "HBITMAP:*" hAppLogo
+	;@Ahk2Exe-IgnoreBegin
+	Gui, Add, Picture, x12 y9, %A_ScriptDir%\res\app48.png
+	;@Ahk2Exe-IgnoreEnd
+	/*@Ahk2Exe-Keep
+	gosub, Load_APP_Logo
+	*/
 	Gui, Font, s20 bold, Segoe UI
 	Gui, Add, Text, x72 y2, %APP_NAME%
 	Gui, Font, s9 norm
@@ -218,6 +221,34 @@ FirstRun_Trigger() {
 	Gui, AboutDialog:Margin, , 10
 	Gui, Show, , About %APP_NAME%
 	return
+	
+	/*@Ahk2Exe-Keep
+	Load_APP_Logo:
+	; modified code based on code from ahk2exe
+	;@Ahk2Exe-AddResource res\app48.png
+	hRSrc := DllCall("FindResource", "ptr", 0, "str", "APP48.PNG", "ptr", 10, "ptr")
+	sData := DllCall("SizeofResource", "ptr", 0, "ptr", hRSrc, "uint")
+	hRes  := DllCall("LoadResource", "ptr", 0, "ptr", hRSrc, "ptr")
+	pData := DllCall("LockResource", "ptr", hRes, "ptr")
+	hGlob := DllCall("GlobalAlloc", "uint", 2, "uint", sData, "ptr") ; 2=GMEM_MOVEABLE
+	pGlob := DllCall("GlobalLock", "ptr", hGlob, "ptr")
+	DllCall("msvcrt\memcpy", "ptr", pGlob, "ptr", pData, "uint", sData, "CDecl")
+	DllCall("GlobalUnlock", "ptr", hGlob)
+	DllCall("ole32\CreateStreamOnHGlobal", "ptr", hGlob, "int", 1, "ptr*", pStream)
+	hGdip := DllCall("LoadLibrary", "str", "gdiplus", "Ptr")
+	VarSetCapacity(si, 16, 0), NumPut(1, si, "UChar")
+	DllCall("gdiplus\GdiplusStartup", "ptr*", gdipToken, "ptr", &si, "ptr", 0)
+	DllCall("gdiplus\GdipCreateBitmapFromStream", "ptr", pStream, "ptr*", pBitmap)
+	DllCall("gdiplus\GdipCreateHBITMAPFromBitmap", "ptr", pBitmap, "ptr*", hBitmap, "uint", 0)
+
+	Gui, Add, Picture, x12 y9, % "HBITMAP:*" hBitmap
+
+	DllCall("gdiplus\GdipDisposeImage", "ptr", pBitmap)
+	DllCall("gdiplus\GdiplusShutdown", "ptr", gdipToken)
+	DllCall("FreeLibrary", "ptr", hGdip)
+	ObjRelease(pStream)
+	return
+	*/
 	
 	AboutDialogGuiEscape:
 	AboutDialogGuiClose:

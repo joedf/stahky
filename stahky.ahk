@@ -124,7 +124,6 @@ PUM_out( msg, obj ) {
 	
 	; On RButton, open the about/firsttime use dialog
 	if (msg == "onrbutton") {
-		MsgBox % G_FirstRun_Trigger
 		FirstRun_Trigger()
 	}
 }

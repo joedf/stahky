@@ -113,12 +113,14 @@ return
 ; PUM's right-click / rbutton handler is not reliable
 ; do some extra handling here
 ; https://autohotkey.com/board/topic/94970-ifwinactive-reference-running-autohotkey-window/#entry598885
-#IfWinExist ahk_group APP_Self_WinGroup
+;
+; No need for #If since the app only runs if we have a menu or a window shown
+;#IfWinExist ahk_group APP_Self_WinGroup
 +#a::
 ~$*RButton::
 	FirstRun_Trigger()
 return
-#IfWinExist
+;#IfWinExist
 
 PUM_out( msg, obj ) {
 

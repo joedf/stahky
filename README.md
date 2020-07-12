@@ -11,6 +11,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
   - Stahkys that have circular references will be capped by the recursion depth setting `STAHKY_MAX_DEPTH` (default is 5).
 - Press <kbd>WheelButton</kbd> / <kbd>MButton</kbd> on a Stahky to open its folder for easy editing.
 - Intended to run as a compiled binary (best experience), but the script can be executed directly.
+- Right-click (<kbd>RButton</kbd>) any item in a stacky to show the About/First-time-use dialog to easily check the version and other information.
 
 ## Screenshots
 ![screenshot1](res/screenshots/s1.png)

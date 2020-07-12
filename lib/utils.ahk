@@ -210,6 +210,7 @@ FirstRun_Trigger() {
 	Gui, Add, Text, x72 yp+18 R2, by joedf
 	Gui, Add, Text, , Revision date: %APP_REVISION%
 	Gui, Add, Text, R2, Release under the MIT License
+	Gui, Add, Link, R2, Special thanks to <a href="https://autohotkey.com/board/topic/73599-ahk-l-pum-owner-drawn-object-based-popup-menu">Deo for PUM.ahk</a>
 	Gui, Add, Text, , First time use?
 	Gui, Add, Link, , <a href="https://github.com/joedf/stahky">https://github.com/joedf/stahky</a>
 	Gui, AboutDialog:Margin, , 10

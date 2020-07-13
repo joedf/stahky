@@ -8,7 +8,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
   - Once pinned, you can delete the shortcut file.
 - Appearance, DPI, offsets, etc. settings
   - Colors are determined automatically on the first run
-  - Edit stahky.ini for sepcific colors, offsets (x or y), use DPI for size and position calculation, ...
+  - Edit stahky.ini for specific colors, offsets (x or y), use DPI for size and position calculation, ...
 - Submenus
   - You can use a normal folder and customize it's icon (in properties)
     - Use a shortcut to a folder, if you want to be able to open it instead of a having submenu

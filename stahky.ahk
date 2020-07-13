@@ -32,8 +32,6 @@ CoordMode, Pixel, Screen
 MouseGetPos, mx, my
 
 ; Smart auto-create *lnk pinnable shortcut file, when folder dragged-on-top of this app
-; Assumption: Stahkys are likely not to be executed in the same folder as Stahky itself,
-; since Stahky wihtout any parameters already handles this behaviour.
 if ( (A_Args[1] != G_STAHKY_ARG) && (FileExist(A_Args[1])) )
 {
 	FileGetAttrib,_t, % A_Args[1]

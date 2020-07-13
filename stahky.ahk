@@ -5,7 +5,6 @@
 ; https://github.com/pawelt/stacky
 ; https://web.archive.org/web/20130927190146/http://justafewlines.com/2013/04/stacky/
 
-;@Ahk2Exe-SetMainIcon res\app.ico
 
 #NoTrayIcon
 #SingleInstance, Force
@@ -19,6 +18,14 @@
 APP_NAME := "stahky"
 APP_VERSION := "0.1.00.01"
 APP_REVISION := "2020/07/13"
+
+;@Ahk2Exe-SetName stahky
+;@Ahk2Exe-SetVersion 0.1.0.1
+;@Ahk2Exe-SetDescription A take on stacky in AutoHotkey (AHK) for Windows 10
+;@Ahk2Exe-SetCopyright (c) 2020 joedf@ahkscript.org
+;@Ahk2Exe-SetCompanyName joedf
+;@Ahk2Exe-SetMainIcon res\app.ico
+
 
 STAHKY_EXT := APP_NAME . ".lnk"
 G_STAHKY_ARG := "/stahky"

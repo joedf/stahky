@@ -18,11 +18,11 @@
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.1.00.00"
-APP_REVISION := "2020/07/12"
+APP_VERSION := "0.1.00.01"
+APP_REVISION := "2020/07/13"
 
 STAHKY_EXT := APP_NAME . ".lnk"
-STAHKY_MAGIC_NUM := "5t4ky_1s_c0oL"
+G_STAHKY_ARG := "/stahky"
 StahkyConfigFile := A_ScriptDir "\" APP_NAME ".ini"
 
 ; AutoHotkey behavioural settings needed
@@ -35,27 +35,39 @@ MouseGetPos, mx, my
 ; Smart auto-create *lnk pinnable shortcut file, when folder dragged-on-top of this app
 ; Assumption: Stahkys are likely not to be executed in the same folder as Stahky itself,
 ; since Stahky wihtout any parameters already handles this behaviour.
-if (A_ScriptDir == A_WorkingDir)
+if ( (A_Args[1] != G_STAHKY_ARG) && (FileExist(A_Args[1])) )
 {
-	FileGetAttrib,A_args1_fattr, % A_Args[1]
-	if InStr(A_args1_fattr,"D") {
+	FileGetAttrib,_t, % A_Args[1]
+	if InStr(_t,"D") {
 		makeStahkyFile(A_Args[1])
 	}
 }
-
-PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
-TaskbarSColor := lightenColor(TaskbarColor)
 
 ; check for first run, if we want to show the intro dialog
 G_FirstRun_Trigger := false
 if !FileExist(StahkyConfigFile)
 	FirstRun_Trigger()
 
-searchPath := (FileExist(A_Args[1]) ? A_Args[1] : A_WorkingDir) . "\*"
+; get search path
+searchPath := A_WorkingDir . "\*"
+; use the Stahky file's path if available
+if ( (A_Args[1] == G_STAHKY_ARG) && (FileExist(A_Args[2])) )
+{
+	FileGetAttrib,_t, % A_Args[2]
+	if InStr(_t,"D") {
+		searchPath := A_Args[2] . "\*"
+	}
+}
 
+; get automatic colors
+PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
+TaskbarSColor := lightenColor(TaskbarColor)
+
+; get/update settings
 getSettingsOrDefaults(StahkyConfigFile)
 updateConfigFile(StahkyConfigFile)
 
+; update value for High DPI display
 DPIScaleRatio := 1
 if (useDPIScaleRatio) {
 	DPIScaleRatio := (A_ScreenDPI / 96)

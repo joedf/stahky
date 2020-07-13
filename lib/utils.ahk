@@ -63,26 +63,25 @@ makeStahkyFile(iPath) {
 	Target := A_ScriptFullPath
 	SplitPath,iPath,outFileName
 	LinkFile := outFileName . "." . STAHKY_EXT
-	FileCreateShortcut, %Target%, %LinkFile%, %iPath%, "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
-	;FileAppend,`n`n[stahky]`nstahky_magic_number=%STAHKY_MAGIC_NUM%
-	IniWrite,%STAHKY_MAGIC_NUM%,%LinkFile%,%APP_NAME%,stahky_magic_number
-	IniWrite,%iPath%,%LinkFile%,%APP_NAME%,targetPath
-	MsgBox, 64, New Stahky created, Pinnable shortcut created: %LinkFile%
+	FileCreateShortcut, %Target%, %LinkFile%, %iPath%, /stahky "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
+	MsgBox, 64, New Stahky created, Pinnable shortcut created: `n%LinkFile%
 }
 
 isStahkyFile(fPath) {
 	global APP_NAME
-	global STAHKY_MAGIC_NUM
+	global G_STAHKY_ARG
 
 	SplitPath,fPath,,,_ext
 	if _ext in lnk
 	{
-		IniRead,_t,%fPath%,%APP_NAME%,stahky_magic_number,0
-		if (_t == STAHKY_MAGIC_NUM) {
+		FileGetShortcut,%fPath%,,,outArgs
+		_a := StrSplit(outArgs,A_Space)
+		if (_a[1] == G_STAHKY_ARG) {
 			;MsgBox, 48, , STAHKY-LICIOUS!
-			; attempt to get target folder from stachky config in the file
-			IniRead,OutTarget,%fPath%,%APP_NAME%,targetPath,1
-			return OutTarget
+			_ap := Trim(SubStr(outArgs,Strlen(G_STAHKY_ARG)+1)," """)
+			if FileExist(_ap)
+				return _ap
+			return true
 		}
 	}
 	return false

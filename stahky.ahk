@@ -134,9 +134,10 @@ PUM_out( msg, obj ) {
 	
 	; On MButton, open the folder if we have a stahky
 	if (msg == "onmbutton") {
-		if (isStahkyFile(obj.path))
+		if (isStahkyFile(obj.path)) {
 			SplitPath, % obj.path,,outDir
 			Run % outDir
+		}
 	}
 	
 	; On RButton, open the about/firsttime use dialog

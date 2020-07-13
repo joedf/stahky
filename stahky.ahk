@@ -5,6 +5,8 @@
 ; https://github.com/pawelt/stacky
 ; https://web.archive.org/web/20130927190146/http://justafewlines.com/2013/04/stacky/
 
+;@Ahk2Exe-SetMainIcon res\app.ico
+
 #NoTrayIcon
 #SingleInstance, Force
 #NoEnv

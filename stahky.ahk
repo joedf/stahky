@@ -147,7 +147,7 @@ PUM_out( msg, obj ) {
 	if (msg == "onmbutton") {
 		if (isStahkyFile(obj.path)) {
 			SplitPath, % obj.path,,outDir
-			Run % outDir
+			Run % obj.path
 		}
 	}
 	

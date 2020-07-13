@@ -1,4 +1,4 @@
-# ![*](res/app48.png) stahky (not stable yet)
+# ![*](res/app48.png) stahky
 A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Windows 10
 
 ## Usage

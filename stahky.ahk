@@ -9,7 +9,6 @@
 
 #NoTrayIcon
 #SingleInstance, Force
-#NoEnv
 
 #Include lib\utils.ahk
 

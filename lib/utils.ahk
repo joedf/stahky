@@ -6,6 +6,9 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 	
 	Loop, %searchPath%, 1
 	{
+		if A_LoopFileAttrib contains H,R,S  ; Skip any file that is either H (Hidden), R (Read-only), or S (System).
+			continue  ; Skip this file and move on to the next one.
+		
 		fPath := A_LoopFileFullPath
 		fExt := A_LoopFileExt
 		SplitPath,fPath,,,,fNameNoExt
@@ -48,7 +51,15 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 				}
 			}
 		}
-
+		else if (InStr(A_LoopFileAttrib,"D")) ; display on-shortcut folders as submenus
+		{
+			%A_ThisFunc%( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
+						,fPath . "\*"
+						,iPUM
+						,pMenuParams
+						,recursion_CurrentDepth )
+		}
+		
 		pMenu.add( mItem )
 	}
 	
@@ -58,8 +69,7 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 makeStahkyFile(iPath) {
 	global APP_NAME
 	global STAHKY_EXT
-	global STAHKY_MAGIC_NUM
-
+	
 	Target := A_ScriptFullPath
 	SplitPath,iPath,outFileName
 	LinkFile := outFileName . "." . STAHKY_EXT

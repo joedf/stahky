@@ -6,7 +6,7 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 	
 	Loop, %searchPath%, 1
 	{
-		if A_LoopFileAttrib contains H,R,S  ; Skip any file that is either H (Hidden), R (Read-only), or S (System).
+		if A_LoopFileAttrib contains H ; Skip any file that is H (Hidden)
 			continue  ; Skip this file and move on to the next one.
 		
 		fPath := A_LoopFileFullPath

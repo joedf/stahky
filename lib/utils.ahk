@@ -164,6 +164,7 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 
 getItemIcon(fPath) {
 	SplitPath,fPath,,,fExt
+	FileGetAttrib,fAttr,%fPath%
 	
 	OutIconChoice := ""
 	if fExt in exe,dll
@@ -196,9 +197,33 @@ getItemIcon(fPath) {
 			OutIconChoice := OutIcon  . ":" . OutIconNum
 	}
 	
-	; support basic folder
-	if (InStr(A_LoopFileAttrib,"D"))
+	; support folder icons
+	if (InStr(fAttr,"D"))
+	{
 		OutIconChoice := "shell32.dll:4"
+		
+		; Customized may contain a hidden system file called desktop.ini
+		_dini := fPath . "\desktop.ini"
+		; https://msdn.microsoft.com/en-us/library/cc144102.aspx
+
+		; case 1
+		; [.ShellClassInfo]
+		; IconResource=C:\WINDOWS\System32\SHELL32.dll,130
+		IniRead,_ico,%_dini%,.ShellClassInfo,IconResource,0		
+		if (_ico) {
+			lastComma := InStr(_ico,",",0,0)
+			OutIconChoice := Substr(_ico,1,lastComma-1) . ":" . substr(_ico,lastComma+1)
+		} else {
+			; case 2
+			; [.ShellClassInfo]
+			; IconFile=C:\WINDOWS\System32\SHELL32.dll
+			; IconIndex=130
+			IniRead,_icoFile,%_dini%,.ShellClassInfo,IconFile,0
+			IniRead,_icoIdx,%_dini%,.ShellClassInfo,IconIndex,0
+			if (_icoFile)
+				OutIconChoice := _icoFile . ":" . _icoIdx
+		}
+	}
 	
 	; support associated filetypes
 	else if (StrLen(OutIconChoice) < 4)

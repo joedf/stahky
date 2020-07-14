@@ -21,11 +21,11 @@ ListLines Off
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.1.0.3"
+APP_VERSION := "0.1.0.4"
 APP_REVISION := "2020/07/14"
 
 ;@Ahk2Exe-SetName stahky
-;@Ahk2Exe-SetVersion 0.1.0.2
+;@Ahk2Exe-SetVersion 0.1.0.4
 ;@Ahk2Exe-SetDescription A take on stacky in AutoHotkey (AHK) for Windows 10
 ;@Ahk2Exe-SetCopyright (c) 2020 joedf@ahkscript.org
 ;@Ahk2Exe-SetCompanyName joedf
@@ -71,7 +71,8 @@ if ( (A_Args[1] == G_STAHKY_ARG) && (FileExist(A_Args[2])) )
 	if InStr(_t,"D") {
 		searchPath := A_Args[2] . "\*"
 	} else {
-		; do nothing if it's not a folder .... wut -,-
+		; warn user and exit if it's not a folder .... wut -,-
+		MsgBox, 48, %APP_NAME% - Error: Invalid stahky config, Error: Could not launch stahky as the following target folder was not found:`n%outTarget%
 		ExitApp
 	}
 }
@@ -161,7 +162,30 @@ PUM_out( msg, obj ) {
 	; run item normally
 	if (msg == "onrun")
 	{
-		Run % obj.path
+		rPath := obj.path
+		
+		; try a normal run/launch
+		Run, %rPath%,,UseErrorLevel
+		
+		; if it fails, assume a shortcut and try again
+		if (ErrorLevel) {
+			try {
+				FileGetShortcut,%rPath%,outTarget,outWrkDir,outArgs
+				Run, "%outTarget%" %outArgs%, %outWrkDir%, UseErrorLevel
+				
+				; Try again if it failed, possibly ProgramFiles x86 vs x64: https://github.com/joedf/stahky/issues/2
+				if (ErrorLevel)
+				{
+					EnvGet, pf64, ProgramW6432
+					_outTarget64 := StrReplace(outTarget, A_ProgramFiles, pf64, , 1)
+					Run, "%_outTarget64%" %outArgs%, %outWrkDir%
+				}
+			}
+			catch ; run failed, alert user
+			{
+				MsgBox, 48,, Error: Could not launch the following (please verify it exists):`n%outTarget%
+			}
+		}
 	}
 	
 	; On MButton, open the folder if we have a stahky

@@ -73,8 +73,8 @@ PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
 TaskbarSColor := lightenColor(TaskbarColor)
 
 ; get/update settings
-getSettingsOrDefaults(StahkyConfigFile)
-updateConfigFile(StahkyConfigFile)
+loadSettings(StahkyConfigFile)
+saveSettings(StahkyConfigFile)
 
 ; update value for High DPI display
 DPIScaleRatio := 1

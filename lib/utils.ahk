@@ -17,12 +17,15 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 		if (!fNameNoExt)
 			fNameNoExt := "." . fExt
 		
+		; automagically get a nice icon accordingly, if possible
 		OutIconChoice := getItemIcon(fPath)
 
+		; setup the menu item's metadata
 		mItem := { "name": fNameNoExt
 			,"path": fPath
 			,"icon": OutIconChoice }
 		
+		; handle any submenus
 		if fExt in lnk
 		{
 			; display stachkys as submenus
@@ -60,6 +63,7 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 						,recursion_CurrentDepth )
 		}
 		
+		; push the menu item to the parent menu
 		pMenu.add( mItem )
 	}
 	
@@ -97,7 +101,7 @@ isStahkyFile(fPath) {
 	return false
 }
 
-getSettingsOrDefaults(SCFile) {
+loadSettings(SCFile) {
 	global
 	IniRead, offsetX, %SCFile%,%APP_NAME%,offsetX,0
 	IniRead, offsetY, %SCFile%,%APP_NAME%,offsetY,0
@@ -113,7 +117,7 @@ getSettingsOrDefaults(SCFile) {
 	IniRead, textColor, %SCFile%,%APP_NAME%,menuTextColor,0xFFFFFF
 }
 
-updateConfigFile(SCFile) {
+saveSettings(SCFile) {
 	global
 	IniWrite, % offsetX, %SCFile%,%APP_NAME%,offsetX
 	IniWrite, % offsetY, %SCFile%,%APP_NAME%,offsetY
@@ -136,37 +140,13 @@ lightenColor(cHex, L:=2.64) {
 	return Format("0x{:X}", (R<<16 | G<<8 | B<<0) )
 }
 
-getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/viewtopic.php?p=297834#p297834
-	I1 := I2:= ""
-	RegRead, from, HKEY_CLASSES_ROOT, .%Ext%
-	RegRead, DefaultIcon, HKEY_CLASSES_ROOT, %from%\DefaultIcon
-	StringReplace, DefaultIcon, DefaultIcon, `",,all
-	StringReplace, DefaultIcon, DefaultIcon, `%SystemRoot`%, %A_WinDir%,all
-	StringReplace, DefaultIcon, DefaultIcon, `%ProgramFiles`%, %A_ProgramFiles%,all
-	StringReplace, DefaultIcon, DefaultIcon, `%windir`%, %A_WinDir%,all
-	StringSplit, I, DefaultIcon, `,
-	DefaultIcon := I1 ":" RegExReplace(I2, "[^\d-]+") ;clean index number, but support negatives
-
-	if (StrLen(DefaultIcon) < 4) {
-		; default file icon, if all else fails
-		DefaultIcon := "shell32.dll:0"
-		
-		;windows default to the OpenCommand if available
-		RegRead, OpenCommand, HKEY_CLASSES_ROOT, %from%\shell\open\command
-		if (OpenCommand) {
-			OpenCommand := StrSplit(OpenCommand,"""","""`t`n`r")[2]
-			DefaultIcon := OpenCommand . ":0"
-		}
-	}
-
-	return DefaultIcon
-}
-
 getItemIcon(fPath) {
 	SplitPath,fPath,,,fExt
 	FileGetAttrib,fAttr,%fPath%
 	
 	OutIconChoice := ""
+	
+	; support executable binaries
 	if fExt in exe,dll
 		OutIconChoice := fPath  . ":0"
 
@@ -230,6 +210,32 @@ getItemIcon(fPath) {
 		OutIconChoice := getExtIcon(fExt)
 	
 	return OutIconChoice
+}
+
+getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/viewtopic.php?p=297834#p297834
+	I1 := I2:= ""
+	RegRead, from, HKEY_CLASSES_ROOT, .%Ext%
+	RegRead, DefaultIcon, HKEY_CLASSES_ROOT, %from%\DefaultIcon
+	StringReplace, DefaultIcon, DefaultIcon, `",,all
+	StringReplace, DefaultIcon, DefaultIcon, `%SystemRoot`%, %A_WinDir%,all
+	StringReplace, DefaultIcon, DefaultIcon, `%ProgramFiles`%, %A_ProgramFiles%,all
+	StringReplace, DefaultIcon, DefaultIcon, `%windir`%, %A_WinDir%,all
+	StringSplit, I, DefaultIcon, `,
+	DefaultIcon := I1 ":" RegExReplace(I2, "[^\d-]+") ;clean index number, but support negatives
+
+	if (StrLen(DefaultIcon) < 4) {
+		; default file icon, if all else fails
+		DefaultIcon := "shell32.dll:0"
+		
+		;windows default to the OpenCommand if available
+		RegRead, OpenCommand, HKEY_CLASSES_ROOT, %from%\shell\open\command
+		if (OpenCommand) {
+			OpenCommand := StrSplit(OpenCommand,"""","""`t`n`r")[2]
+			DefaultIcon := OpenCommand . ":0"
+		}
+	}
+
+	return DefaultIcon
 }
 
 FirstRun_Trigger() {

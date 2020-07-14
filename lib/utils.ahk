@@ -38,8 +38,8 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 				}
 				
 				; create and attach the stahky submenu, with a cap on recursion depth
-				if (recursion_CurrentDepth < STAHKY_MAX_DEPTH) {
-					
+				if (recursion_CurrentDepth < STAHKY_MAX_DEPTH)
+				{
 					; recurse into sub-stachky-liciousnous
 					%A_ThisFunc%( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
 						,OutTarget . "\*"
@@ -75,10 +75,9 @@ makeStahkyFile(iPath) {
 	global APP_NAME
 	global STAHKY_EXT
 	
-	Target := A_ScriptFullPath
-	SplitPath,iPath,outFileName
-	LinkFile := outFileName . "." . STAHKY_EXT
-	FileCreateShortcut, %Target%, %LinkFile%, %iPath%, /stahky "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
+	; assume we have a folder
+	LinkFile := iPath . "." . STAHKY_EXT
+	FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %iPath%, /stahky "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
 	MsgBox, 64, New Stahky created, Pinnable shortcut created: `n%LinkFile%
 }
 

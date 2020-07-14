@@ -49,6 +49,8 @@ if ( (A_Args[1] != G_STAHKY_ARG) && (FileExist(A_Args[1])) )
 	FileGetAttrib,_t, % A_Args[1]
 	if InStr(_t,"D") {
 		makeStahkyFile(A_Args[1])
+		; we're done here! don't execute the rest of the program ... arrrgg >_<
+		ExitApp
 	}
 }
 
@@ -66,7 +68,7 @@ if ( (A_Args[1] == G_STAHKY_ARG) && (FileExist(A_Args[2])) )
 	if InStr(_t,"D") {
 		searchPath := A_Args[2] . "\*"
 	} else {
-		; do nothing if it's not a folder
+		; do nothing if it's not a folder .... wut -,-
 		ExitApp
 	}
 }

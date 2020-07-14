@@ -65,6 +65,9 @@ if ( (A_Args[1] == G_STAHKY_ARG) && (FileExist(A_Args[2])) )
 	FileGetAttrib,_t, % A_Args[2]
 	if InStr(_t,"D") {
 		searchPath := A_Args[2] . "\*"
+	} else {
+		; do nothing if it's not a folder
+		ExitApp
 	}
 }
 
@@ -133,6 +136,7 @@ if (!G_FirstRun_Trigger)
 	ExitApp
 return
 
+
 ; PUM's right-click / rbutton handler is not reliable
 ; do some extra handling here
 ; https://autohotkey.com/board/topic/94970-ifwinactive-reference-running-autohotkey-window/#entry598885
@@ -145,6 +149,8 @@ return
 return
 ;#IfWinExist
 
+
+; handle attached PUM events and actions 
 PUM_out( msg, obj ) {
 
 	; run item normally
@@ -155,6 +161,8 @@ PUM_out( msg, obj ) {
 	
 	; On MButton, open the folder if we have a stahky
 	if (msg == "onmbutton") {
+		
+		; open the stahky's folder
 		if (_p:=isStahkyFile(obj.path)) {
 			if FileExist(_p)
 				Run % _p

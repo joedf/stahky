@@ -56,6 +56,7 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 		}
 		else if (InStr(A_LoopFileAttrib,"D")) ; display on-shortcut folders as submenus
 		{
+			; recurse into folders
 			%A_ThisFunc%( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
 						,fPath . "\*"
 						,iPUM

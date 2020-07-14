@@ -21,8 +21,8 @@ ListLines Off
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.1.0.2"
-APP_REVISION := "2020/07/13"
+APP_VERSION := "0.1.0.3"
+APP_REVISION := "2020/07/14"
 
 ;@Ahk2Exe-SetName stahky
 ;@Ahk2Exe-SetVersion 0.1.0.2
@@ -168,6 +168,11 @@ PUM_out( msg, obj ) {
 		if (_p:=isStahkyFile(obj.path)) {
 			if FileExist(_p)
 				Run % _p
+		}
+		else ; open the current menu's or submenu's parent folder
+		{
+			SplitPath, % obj.path,,_p
+			Run, % _p
 		}
 	}
 	

@@ -31,6 +31,9 @@ APP_REVISION := "2020/07/14"
 ;@Ahk2Exe-SetCompanyName joedf
 ;@Ahk2Exe-SetMainIcon res\app.ico
 
+; Trick to use mpress and throw no error if not available
+;@Ahk2Exe-PostExec cmd /c mpress.exe "%A_WorkFileName%" &rem, 0
+
 
 STAHKY_EXT := APP_NAME . ".lnk"
 G_STAHKY_ARG := "/stahky"

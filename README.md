@@ -2,7 +2,7 @@
 A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Windows 10
 
 ## Usage
-- Drag a folder with shortcuts, programs and files onto stahky
+- Drag a folder with shortcuts, programs and files onto Stahky
   - A taskbar pinnable icon will be created in the same folder as Stahky itself.
   - You should edit the shortcut's icon before pinning it.
   - Once pinned, you can delete the shortcut file.
@@ -15,7 +15,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
   - You can have stahky shortcuts within your folder for custom submenus. Stahky-licious!
     - Stahkys that have circular references will be capped by the recursion depth setting `STAHKY_MAX_DEPTH` (default is 5).
 - Press <kbd>WheelButton</kbd> / <kbd>MButton</kbd> on
-  - a Stahky to open its target folder for easy editing.
+  - a stahky to open its target folder for easy editing.
   - any item to open its parent folder.
 - Intended to run as a compiled binary (best experience), but the script can be executed directly.
 - Press <kbd>Shift</kbd>+<kbd>Win</kbd>+<kbd>a</kbd> or Right-click (<kbd>RButton</kbd>) any item in a stacky to show the About/First-time-use dialog to easily check the version and other information.

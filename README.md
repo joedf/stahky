@@ -3,7 +3,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
 
 ## Usage
 - Drag a folder with shortcuts, programs and files onto stahky
-  - A taskbar pinnable icon will be created.
+  - A taskbar pinnable icon will be created in the same folder as Stahky itself.
   - You should edit the shortcut's icon before pinning it.
   - Once pinned, you can delete the shortcut file.
 - Appearance, DPI, offsets, etc. settings
@@ -19,6 +19,8 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
   - any item to open its parent folder.
 - Intended to run as a compiled binary (best experience), but the script can be executed directly.
 - Press <kbd>Shift</kbd>+<kbd>Win</kbd>+<kbd>a</kbd> or Right-click (<kbd>RButton</kbd>) any item in a stacky to show the About/First-time-use dialog to easily check the version and other information.
+- If Stahky takes too long to load, it will warn you of including folders that are too large.
+  - this time limit `STAHKY_MAX_RUN_TIME` can be changed but has a minimum of 1000 ms and maximum of 10 s of wait time (default is 3500 ms).
 
 ## Screenshots
 ![screenshot1](res/screenshots/s1.png)

@@ -127,7 +127,7 @@ loadSettings(SCFile) {
 	IniRead, offsetY, %SCFile%,%APP_NAME%,offsetY,0
 	IniRead, icoSize, %SCFile%,%APP_NAME%,iconSize,24
 	IniRead, STAHKY_MAX_RUN_TIME, %SCFile%,%APP_NAME%,STAHKY_MAX_RUN_TIME,3500
-	STAHKY_MAX_RUN_TIME := Min(STAHKY_MAX_RUN_TIME,10000) ; maximum of 10s wait/run time
+	STAHKY_MAX_RUN_TIME := Max(1000,Min(STAHKY_MAX_RUN_TIME,10000)) ; minimum of 1s, maximum of 10s wait/run time
 	IniRead, STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH,5
 	IniRead, useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio,1
 	IniRead, menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin,85

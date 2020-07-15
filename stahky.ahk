@@ -80,6 +80,7 @@ if ( (A_Args[1] == G_STAHKY_ARG) && (FileExist(A_Args[2])) )
 ; get automatic colors
 PixelGetColor, TaskbarColor, 0, % A_ScreenHeight - 1
 TaskbarSColor := lightenColor(TaskbarColor)
+TaskbarTColor := contrastBW(TaskbarSColor)
 
 ; get/update settings
 loadSettings(StahkyConfigFile)

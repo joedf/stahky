@@ -135,8 +135,8 @@ loadSettings(SCFile) {
 	IniRead, menuMarginY, %SCFile%,%APP_NAME%,menuMarginY,4
 	IniRead, bgColor, %SCFile%,%APP_NAME%,menuBGColor, % TaskbarColor ;0x101010
 	IniRead, sbgColor, %SCFile%,%APP_NAME%,menuSelectedBGColor, % TaskbarSColor ;0x272727
-	IniRead, stextColor, %SCFile%,%APP_NAME%,menuSelectedTextColor,0xFFFFFF
-	IniRead, textColor, %SCFile%,%APP_NAME%,menuTextColor,0xFFFFFF
+	IniRead, stextColor, %SCFile%,%APP_NAME%,menuSelectedTextColor, % TaskbarTColor ; B/W based on a luma/contrast formula
+	IniRead, textColor, %SCFile%,%APP_NAME%,menuTextColor, % TaskbarTColor
 }
 
 saveSettings(SCFile) {
@@ -157,10 +157,17 @@ saveSettings(SCFile) {
 }
 
 lightenColor(cHex, L:=2.64) {
-	R := L * (cHex>>16 & 0xFF)
-	G := L * (cHex>>8 & 0xFF)
-	B := L * (cHex & 0xFF)
+	R := (L * (cHex>>16 & 0xFF)) & 0xFF
+	G := (L * (cHex>>8 & 0xFF)) & 0xFF
+	B := (L * (cHex & 0xFF)) & 0xFF
 	return Format("0x{:X}", (R<<16 | G<<8 | B<<0) )
+}
+
+contrastBW(c) { ; based on https://gamedev.stackexchange.com/a/38561/48591
+	R := 0.2126 * (c>>16 & 0xFF) / 0xFF
+	G := 0.7152 * (c>>8 & 0xFF) / 0xFF
+	B := 0.0722 * (c & 0xFF) / 0xFF
+	return ((R+G+B) > 0.5) ? 0x000000 : 0xFFFFFF
 }
 
 getItemIcon(fPath) {

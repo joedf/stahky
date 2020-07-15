@@ -3,9 +3,27 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 {
 	global APP_NAME
 	global STAHKY_MAX_DEPTH
+	global STAHKY_START_TIME
+	global STAHKY_MAX_RUN_TIME
 	
 	Loop, %searchPath%, 1
 	{
+		; check if the menu creation is taking too long, avoid very large folders!
+		runtime:=(A_TickCount - STAHKY_START_TIME)
+		if (runtime > 2000) ; bug? doesn't work unless we have tooltip?
+			ToolTip %APP_NAME% is loading... %runtime%
+		if (runtime > STAHKY_MAX_RUN_TIME) {
+			ToolTip
+			
+			MsgBox, 4112, , 
+			(Ltrim Join`s
+			Stahky has been running for too long! Please ensure to not include any folders that are too large.
+			Consider including a shortcut to large folders in your stahky folder instead.
+			`n`nLatest file:`n%A_LoopFileFullPath%`n`nExecution time: %runtime% ms`nThe program will now terminate.
+			)
+			ExitApp
+		}
+		
 		if A_LoopFileAttrib contains H ; Skip any file that is H (Hidden)
 			continue  ; Skip this file and move on to the next one.
 		
@@ -108,6 +126,8 @@ loadSettings(SCFile) {
 	IniRead, offsetX, %SCFile%,%APP_NAME%,offsetX,0
 	IniRead, offsetY, %SCFile%,%APP_NAME%,offsetY,0
 	IniRead, icoSize, %SCFile%,%APP_NAME%,iconSize,24
+	IniRead, STAHKY_MAX_RUN_TIME, %SCFile%,%APP_NAME%,STAHKY_MAX_RUN_TIME,3500
+	STAHKY_MAX_RUN_TIME := Min(STAHKY_MAX_RUN_TIME,10000) ; maximum of 10s wait/run time
 	IniRead, STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH,5
 	IniRead, useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio,1
 	IniRead, menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin,85
@@ -124,6 +144,7 @@ saveSettings(SCFile) {
 	IniWrite, % offsetX, %SCFile%,%APP_NAME%,offsetX
 	IniWrite, % offsetY, %SCFile%,%APP_NAME%,offsetY
 	IniWrite, % icoSize, %SCFile%,%APP_NAME%,iconSize
+	IniWrite, % STAHKY_MAX_RUN_TIME, %SCFile%,%APP_NAME%,STAHKY_MAX_RUN_TIME
 	IniWrite, % STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH
 	IniWrite, % useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio
 	IniWrite, % menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin

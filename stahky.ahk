@@ -21,14 +21,14 @@ ListLines Off
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.1.0.4"
-APP_REVISION := "2020/07/14"
+APP_VERSION := "0.1.0.5"
+APP_REVISION := "2020/07/15"
 
 ;@Ahk2Exe-SetName stahky
-;@Ahk2Exe-SetVersion 0.1.0.4
+;@Ahk2Exe-SetVersion 0.1.0.5
 ;@Ahk2Exe-SetDescription A take on stacky in AutoHotkey (AHK) for Windows 10
 ;@Ahk2Exe-SetCopyright (c) 2020 joedf@ahkscript.org
-;@Ahk2Exe-SetCompanyName joedf
+;@Ahk2Exe-SetCompanyName joedf.ahkscript.org
 ;@Ahk2Exe-SetMainIcon res\app.ico
 
 ; Trick to use mpress and throw no error if not available
@@ -121,6 +121,9 @@ menuParams := {"bgcolor" : bgColor ;background color of the menu
 pm := new PUM( pumParams )
 ; creating popup menu, represented by PUM_Menu object with given parameters
 menu := pm.CreateMenu( menuParams )
+
+; Log start time to prevent runs from taking too long with no visual feedback
+STAHKY_START_TIME := A_TickCount
 
 ; Populate Stahkys!
 MakeStahkyMenu(menu, searchPath, pm, menuParams )

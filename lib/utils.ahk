@@ -157,9 +157,9 @@ saveSettings(SCFile) {
 }
 
 lightenColor(cHex, L:=2.64) {
-	R := (L * (cHex>>16 & 0xFF)) & 0xFF
-	G := (L * (cHex>>8 & 0xFF)) & 0xFF
-	B := (L * (cHex & 0xFF)) & 0xFF
+	R := (L * (10+(cHex>>16 & 0xFF))) & 0xFF
+	G := (L * (10+(cHex>>8 & 0xFF))) & 0xFF
+	B := (L * (10+(cHex & 0xFF))) & 0xFF
 	return Format("0x{:X}", (R<<16 | G<<8 | B<<0) )
 }
 
@@ -167,7 +167,8 @@ contrastBW(c) { ; based on https://gamedev.stackexchange.com/a/38561/48591
 	R := 0.2126 * (c>>16 & 0xFF) / 0xFF
 	G := 0.7152 * (c>>8 & 0xFF) / 0xFF
 	B := 0.0722 * (c & 0xFF) / 0xFF
-	return ((R+G+B) > 0.5) ? 0x000000 : 0xFFFFFF
+	luma := R+G+B
+	return (luma > 0.35) ? 0x000000 : 0xFFFFFF
 }
 
 getItemIcon(fPath) {

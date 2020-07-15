@@ -75,10 +75,12 @@ makeStahkyFile(iPath) {
 	global APP_NAME
 	global STAHKY_EXT
 	
-	; assume we have a folder
-	LinkFile := iPath . "." . STAHKY_EXT
+	; assume we have a folder and get it's name
+	SplitPath,iPath,outFolderName
+	; create the shortcut in the same folder as Stahky itself
+	LinkFile := A_ScriptDir . "\" . outFolderName . "." . STAHKY_EXT
 	FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %iPath%, /stahky "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
-	MsgBox, 64, New Stahky created, Pinnable shortcut created: `n%LinkFile%
+	MsgBox, 64, New Stahky created, A pinnable shortcut was created here: `n%LinkFile%
 }
 
 isStahkyFile(fPath) {

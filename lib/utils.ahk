@@ -123,8 +123,10 @@ isStahkyFile(fPath) {
 
 loadSettings(SCFile) {
 	global
-	; get automatic colors
-	PixelGetColor, TaskbarColor, % A_ScreenWidth - 2, % A_ScreenHeight - 2, RGB
+	; get taskbar colors
+	TaskbarColor := getTaskbarColor()
+
+	; calc default colors
 	TaskbarSColor := lightenColor(TaskbarColor)
 	TaskbarTColor := contrastBW(TaskbarSColor)
 
@@ -176,6 +178,19 @@ contrastBW(c) { ; based on https://gamedev.stackexchange.com/a/38561/48591
 	B := 0.0722 * (c & 0xFF) / 0xFF
 	luma := R+G+B
 	return (luma > 0.35) ? 0x000000 : 0xFFFFFF
+}
+
+getTaskbarColor() {
+	; get task pos/size info
+	WinGetPos tx, ty, tw, th, ahk_class Shell_TrayWnd
+
+	; calc pixel position
+	tPix_x := tx + tw - 2
+	tPix_y := ty + th - 2
+
+	; pick the color and return
+	PixelGetColor, TaskbarColor, % tPix_x, % tPix_y, RGB
+	return TaskbarColor
 }
 
 getOptimalPosToTaskbar(mx,my,menu_w) {

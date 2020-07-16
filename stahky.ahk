@@ -44,7 +44,7 @@ GroupAdd APP_Self_WinGroup, ahk_id %A_ScriptHwnd%
 GroupAdd APP_Self_WinGroup, % "ahk_pid " DllCall("GetCurrentProcessId")
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
-MouseGetPos, mx, my
+MouseGetPos, mouseX, mouseY
 
 ; Smart auto-create *lnk pinnable shortcut file, when folder dragged-on-top of this app
 if ( (A_Args[1] != G_STAHKY_ARG) && (FileExist(A_Args[1])) )
@@ -77,12 +77,7 @@ if ( (A_Args[1] == G_STAHKY_ARG) && (FileExist(A_Args[2])) )
 	}
 }
 
-; get automatic colors
-PixelGetColor, TaskbarColor, % A_ScreenWidth - 2, % A_ScreenHeight - 2, RGB
-TaskbarSColor := lightenColor(TaskbarColor)
-TaskbarTColor := contrastBW(TaskbarSColor)
-
-; get/update settings
+; get/update settings, colors, position offsets, ...
 loadSettings(StahkyConfigFile)
 saveSettings(StahkyConfigFile)
 
@@ -129,14 +124,12 @@ STAHKY_START_TIME := A_TickCount
 ; Populate Stahkys!
 MakeStahkyMenu(menu, searchPath, pm, menuParams )
 
-; Calculate postion of the menu near the Taskbar
-SysGet m, MonitorWorkArea, 1
-mpy := mBottom
+; Calculate optimal postion for the menu to be near the Taskbar
 menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
-mpx := mx - ( menuWidth//DPIScaleRatio )
+menuPos := getOptimalPosToTaskbar(mouseX, mouseY, menuWidth)
 
 ; Display the PUM menu
-item := menu.Show( mpx+offsetX, mpy+offsetY )
+item := menu.Show( menuPos.x+offsetX, menuPos.y+offsetY )
 
 ; Destroy everything PUM on program end
 pm.Destroy()

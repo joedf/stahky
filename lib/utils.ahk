@@ -123,6 +123,12 @@ isStahkyFile(fPath) {
 
 loadSettings(SCFile) {
 	global
+	; get automatic colors
+	PixelGetColor, TaskbarColor, % A_ScreenWidth - 2, % A_ScreenHeight - 2, RGB
+	TaskbarSColor := lightenColor(TaskbarColor)
+	TaskbarTColor := contrastBW(TaskbarSColor)
+
+	; load vals
 	IniRead, offsetX, %SCFile%,%APP_NAME%,offsetX,0
 	IniRead, offsetY, %SCFile%,%APP_NAME%,offsetY,0
 	IniRead, icoSize, %SCFile%,%APP_NAME%,iconSize,24
@@ -141,6 +147,7 @@ loadSettings(SCFile) {
 
 saveSettings(SCFile) {
 	global
+	; save vals
 	IniWrite, % offsetX, %SCFile%,%APP_NAME%,offsetX
 	IniWrite, % offsetY, %SCFile%,%APP_NAME%,offsetY
 	IniWrite, % icoSize, %SCFile%,%APP_NAME%,iconSize
@@ -169,6 +176,40 @@ contrastBW(c) { ; based on https://gamedev.stackexchange.com/a/38561/48591
 	B := 0.0722 * (c & 0xFF) / 0xFF
 	luma := R+G+B
 	return (luma > 0.35) ? 0x000000 : 0xFFFFFF
+}
+
+getOptimalPosToTaskbar(mx,my,menu_w) {
+	global DPIScaleRatio
+	
+	; default menu pos to mouse pos
+	menu_x := mx, menu_y := my
+	
+	; get task pos/size info
+	WinGetPos tx, ty, tw, th, ahk_class Shell_TrayWnd
+	
+	; Taskbar is horizontal
+	tolerance := 10 * DPIScaleRatio
+	if (tw > th) {
+		; same X for both cases
+		menu_x := mx - ( menu_w//DPIScaleRatio )
+		; get y pos
+		if (ty > tolerance) { ; Bottom
+			menu_y := ty
+		} else { ; Top
+			menu_y := ty + th
+		}
+	} else { ; Taskbar is vertical
+		; same Y for both cases
+		menu_y := my - (8*DPIScaleRatio)
+		; get x pos
+		if (tx > tolerance) { ; Right
+			menu_x := tx - ( menu_w//DPIScaleRatio ) - tw
+		} else { ; Left
+			menu_x := tx + tw
+		}
+	}
+	
+	return {x: menu_x, y: menu_y}
 }
 
 getItemIcon(fPath) {

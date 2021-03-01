@@ -5,87 +5,122 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 	global STAHKY_MAX_DEPTH
 	global STAHKY_START_TIME
 	global STAHKY_MAX_RUN_TIME
-	
-	Loop, %searchPath%, 1
-	{
-		; check if the menu creation is taking too long, avoid very large folders!
-		runtime:=(A_TickCount - STAHKY_START_TIME)
-		if (runtime > 2000) ; bug? doesn't work unless we have tooltip?
-			ToolTip %APP_NAME% is loading... %runtime%
-		if (runtime > STAHKY_MAX_RUN_TIME) {
-			ToolTip
-			
-			MsgBox, 4112, , 
-			(Ltrim Join`s
-			Stahky has been running for too long! Please ensure to not include any folders that are too large.
-			Consider including a shortcut to large folders in your stahky folder instead.
-			`n`nLatest file:`n%A_LoopFileFullPath%`n`nExecution time: %runtime% ms`nThe program will now terminate.
-			)
-			ExitApp
-		}
-		
-		if A_LoopFileAttrib contains H ; Skip any file that is H (Hidden)
-			continue  ; Skip this file and move on to the next one.
-		
-		fPath := A_LoopFileFullPath
-		fExt := A_LoopFileExt
-		SplitPath,fPath,,,,fNameNoExt
-		
-		; support filenames like .gitignore, LICENSE
-		if (!fNameNoExt)
-			fNameNoExt := "." . fExt
-		
-		; automagically get a nice icon accordingly, if possible
-		OutIconChoice := getItemIcon(fPath)
 
-		; setup the menu item's metadata
-		mItem := { "name": fNameNoExt
-			,"path": fPath
-			,"icon": OutIconChoice }
-		
-		; handle any submenus
-		if fExt in lnk
+	global SortFoldersFirst
+
+	if (SortFoldersFirst)
+	{
+		; do folders first
+		Loop, %searchPath%, 2
 		{
-			; display stachkys as submenus
-			if (OutTarget := isStahkyFile(fPath)) {
-				
-				; couldnt get from the stachky file config, so assume the target folder using the lnk's args
-				if !FileExist(OutTarget) {
-					FileGetShortcut,%fPath%,,,OutArgs
-					OutTarget := Trim(OutArgs,""""`t)
-				}
-				
-				; create and attach the stahky submenu, with a cap on recursion depth
-				if (recursion_CurrentDepth < STAHKY_MAX_DEPTH)
-				{
-					; recurse into sub-stachky-liciousnous
-					%A_ThisFunc%( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
-						,OutTarget . "\*"
-						,iPUM
-						,pMenuParams
-						,recursion_CurrentDepth+1  )
-				} else {
-					maxStahkyWarningMenu := (mItem["submenu"] := iPUM.CreateMenu( pMenuParams ))
-					maxStahkyWarningMenu.Add({ "name": "Overwhelmingly Stahky-licious! (Max = " . STAHKY_MAX_DEPTH . ")"
-						,"disabled": true
-						,"icon": A_ScriptFullPath })
-				}
-			}
+			MakeStahkyMenu_subroutine( pMenu, A_LoopFileFullPath, iPUM, pMenuParams, recursion_CurrentDepth )
 		}
-		else if (InStr(A_LoopFileAttrib,"D")) ; display on-shortcut folders as submenus
+
+		; do files second
+		Loop, %searchPath%, 0
 		{
-			; recurse into folders
-			%A_ThisFunc%( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
-						,fPath . "\*"
-						,iPUM
-						,pMenuParams
-						,recursion_CurrentDepth )
+			MakeStahkyMenu_subroutine( pMenu, A_LoopFileFullPath, iPUM, pMenuParams, recursion_CurrentDepth )
 		}
-		
-		; push the menu item to the parent menu
-		pMenu.add( mItem )
+	}
+	else
+	{
+		; do normal order, alphabetically/natural order
+		Loop, %searchPath%, 1
+		{
+			MakeStahkyMenu_subroutine( pMenu, A_LoopFileFullPath, iPUM, pMenuParams, recursion_CurrentDepth )
+		}
 	}
 	
+	return pMenu
+}
+
+MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDepth := 0 )
+{
+	global APP_NAME
+	global STAHKY_MAX_DEPTH
+	global STAHKY_START_TIME
+	global STAHKY_MAX_RUN_TIME
+
+	; assume we get the full path in fPath
+
+	; check if the menu creation is taking too long, avoid very large folders!
+	runtime:=(A_TickCount - STAHKY_START_TIME)
+	if (runtime > 2000) ; bug? doesn't work unless we have tooltip?
+		ToolTip %APP_NAME% is loading... %runtime%
+	if (runtime > STAHKY_MAX_RUN_TIME) {
+		ToolTip
+		
+		MsgBox, 4112, , 
+		(Ltrim Join`s
+		Stahky has been running for too long! Please ensure to not include any folders that are too large.
+		Consider including a shortcut to large folders in your stahky folder instead.
+		`n`nLatest file:`n%fPath%`n`nExecution time: %runtime% ms`nThe program will now terminate.
+		)
+		ExitApp
+	}
+
+	FileGetAttrib, fileAttrib, % fPath
+	if InStr(fileAttrib, "H") ; Skip any file that is H (Hidden)
+		return pMenu ; Skip this file and move on to the next one.
+	
+	SplitPath,fPath,,,fExt,fNameNoExt
+	
+	; support filenames like .gitignore, LICENSE
+	if (!fNameNoExt)
+		fNameNoExt := "." . fExt
+	
+	; automagically get a nice icon accordingly, if possible
+	OutIconChoice := getItemIcon(fPath)
+
+	; setup the menu item's metadata
+	mItem := { "name": fNameNoExt
+		,"path": fPath
+		,"icon": OutIconChoice }
+	
+	; handle any submenus
+	if fExt in lnk
+	{
+		; display stachkys as submenus
+		if (OutTarget := isStahkyFile(fPath)) {
+			
+			; couldnt get from the stachky file config, so assume the target folder using the lnk's args
+			if !FileExist(OutTarget) {
+				FileGetShortcut,%fPath%,,,OutArgs
+				OutTarget := Trim(OutArgs,""""`t)
+			}
+			
+			; create and attach the stahky submenu, with a cap on recursion depth
+			if (recursion_CurrentDepth < STAHKY_MAX_DEPTH)
+			{
+				; recurse into sub-stachky-liciousnous
+				; Not using "%A_ThisFunc%", to support optional sorting from "MakeStahkyMenu" instead of "MakeStahkyMenu_subroutine"
+				MakeStahkyMenu( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
+					,OutTarget . "\*"
+					,iPUM
+					,pMenuParams
+					,recursion_CurrentDepth+1  )
+			} else {
+				maxStahkyWarningMenu := (mItem["submenu"] := iPUM.CreateMenu( pMenuParams ))
+				maxStahkyWarningMenu.Add({ "name": "Overwhelmingly Stahky-licious! (Max = " . STAHKY_MAX_DEPTH . ")"
+					,"disabled": true
+					,"icon": A_ScriptFullPath })
+			}
+		}
+	}
+	else if (InStr(fileAttrib,"D")) ; display on-shortcut folders as submenus
+	{
+		; recurse into folders
+		; Not using "%A_ThisFunc%", to support optional sorting from "MakeStahkyMenu" instead of "MakeStahkyMenu_subroutine"
+		MakeStahkyMenu( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
+					,fPath . "\*"
+					,iPUM
+					,pMenuParams
+					,recursion_CurrentDepth )
+	}
+	
+	; push the menu item to the parent menu
+	pMenu.add( mItem )
+
 	return pMenu
 }
 
@@ -137,6 +172,7 @@ loadSettings(SCFile) {
 	IniRead, STAHKY_MAX_RUN_TIME, %SCFile%,%APP_NAME%,STAHKY_MAX_RUN_TIME,3500
 	STAHKY_MAX_RUN_TIME := Max(1000,Min(STAHKY_MAX_RUN_TIME,10000)) ; minimum of 1s, maximum of 10s wait/run time
 	IniRead, STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH,5
+	IniRead, SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst,0
 	IniRead, useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio,1
 	IniRead, menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin,85
 	IniRead, menuMarginX, %SCFile%,%APP_NAME%,menuMarginX,4
@@ -155,6 +191,7 @@ saveSettings(SCFile) {
 	IniWrite, % icoSize, %SCFile%,%APP_NAME%,iconSize
 	IniWrite, % STAHKY_MAX_RUN_TIME, %SCFile%,%APP_NAME%,STAHKY_MAX_RUN_TIME
 	IniWrite, % STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH
+	IniWrite, % SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst
 	IniWrite, % useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio
 	IniWrite, % menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin
 	IniWrite, % menuMarginX, %SCFile%,%APP_NAME%,menuMarginX

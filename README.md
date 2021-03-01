@@ -9,6 +9,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
 - Appearance, DPI, offsets, etc. settings
   - Colors are determined automatically on the first run
   - Edit stahky.ini for specific colors, offsets (x or y), use DPI for size and position calculation, ...
+  - The `SortFoldersFirst` option allows you to have folders appear first at the top of each menu accordingly.
 - Submenus
   - You can use a normal folder and customize it's icon (in properties)
     - Use a shortcut to a folder, if you want to be able to open it instead of a having submenu

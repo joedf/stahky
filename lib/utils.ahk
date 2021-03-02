@@ -69,6 +69,9 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 	if (!fNameNoExt)
 		fNameNoExt := "." . fExt
 	
+	; support filenames with `&`, so they don't become ALT+letter shortcut and hide the `&` character
+	fNameNoExt := StrReplace(fNameNoExt,"&","&&")
+	
 	; automagically get a nice icon accordingly, if possible
 	OutIconChoice := getItemIcon(fPath)
 

@@ -153,23 +153,23 @@ return
 ;#IfWinExist
 
 
-; handle attached PUM events and actions 
+; handle attached PUM events and actions
 PUM_out( msg, obj ) {
 
 	; run item normally
 	if (msg == "onrun")
 	{
 		rPath := obj.path
-		
+
 		; try a normal run/launch
 		Run, %rPath%,,UseErrorLevel
-		
+
 		; if it fails, assume a shortcut and try again
 		if (ErrorLevel) {
 			try {
 				FileGetShortcut,%rPath%,outTarget,outWrkDir,outArgs
 				Run, "%outTarget%" %outArgs%, %outWrkDir%, UseErrorLevel
-				
+
 				; Try again if it failed, possibly ProgramFiles x86 vs x64: https://github.com/joedf/stahky/issues/2
 				if (ErrorLevel)
 				{
@@ -184,10 +184,10 @@ PUM_out( msg, obj ) {
 			}
 		}
 	}
-	
+
 	; On MButton, open the folder if we have a stahky
 	if (msg == "onmbutton") {
-		
+
 		; open the stahky's folder
 		if (_p:=isStahkyFile(obj.path)) {
 			if FileExist(_p)
@@ -199,7 +199,7 @@ PUM_out( msg, obj ) {
 			Run, % _p
 		}
 	}
-	
+
 	; On RButton, open the about/firsttime use dialog
 	if (msg == "onrbutton") {
 		FirstRun_Trigger()

@@ -30,7 +30,7 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 			MakeStahkyMenu_subroutine( pMenu, A_LoopFileFullPath, iPUM, pMenuParams, recursion_CurrentDepth )
 		}
 	}
-	
+
 	return pMenu
 }
 
@@ -49,8 +49,8 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 		ToolTip %APP_NAME% is loading... %runtime%
 	if (runtime > STAHKY_MAX_RUN_TIME) {
 		ToolTip
-		
-		MsgBox, 4112, , 
+
+		MsgBox, 4112, ,
 		(Ltrim Join`s
 		Stahky has been running for too long! Please ensure to not include any folders that are too large.
 		Consider including a shortcut to large folders in your stahky folder instead.
@@ -62,16 +62,16 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 	FileGetAttrib, fileAttrib, % fPath
 	if InStr(fileAttrib, "H") ; Skip any file that is H (Hidden)
 		return pMenu ; Skip this file and move on to the next one.
-	
+
 	SplitPath,fPath,,,fExt,fNameNoExt
-	
+
 	; support filenames like .gitignore, LICENSE
 	if (!fNameNoExt)
 		fNameNoExt := "." . fExt
-	
+
 	; support filenames with `&`, so they don't become ALT+letter shortcut and hide the `&` character
 	fNameNoExt := StrReplace(fNameNoExt,"&","&&")
-	
+
 	; automagically get a nice icon accordingly, if possible
 	OutIconChoice := getItemIcon(fPath)
 
@@ -79,19 +79,19 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 	mItem := { "name": fNameNoExt
 		,"path": fPath
 		,"icon": OutIconChoice }
-	
+
 	; handle any submenus
 	if fExt in lnk
 	{
 		; display stachkys as submenus
 		if (OutTarget := isStahkyFile(fPath)) {
-			
+
 			; couldnt get from the stachky file config, so assume the target folder using the lnk's args
 			if !FileExist(OutTarget) {
 				FileGetShortcut,%fPath%,,,OutArgs
 				OutTarget := Trim(OutArgs,""""`t)
 			}
-			
+
 			; create and attach the stahky submenu, with a cap on recursion depth
 			if (recursion_CurrentDepth < STAHKY_MAX_DEPTH)
 			{
@@ -120,7 +120,7 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 					,pMenuParams
 					,recursion_CurrentDepth )
 	}
-	
+
 	; push the menu item to the parent menu
 	pMenu.add( mItem )
 
@@ -130,7 +130,7 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 makeStahkyFile(iPath) {
 	global APP_NAME
 	global STAHKY_EXT
-	
+
 	; assume we have a folder and get it's name
 	SplitPath,iPath,outFolderName
 	; create the shortcut in the same folder as Stahky itself
@@ -235,13 +235,13 @@ getTaskbarColor() {
 
 getOptimalPosToTaskbar(mx,my,menu_w) {
 	global DPIScaleRatio
-	
+
 	; default menu pos to mouse pos
 	menu_x := mx, menu_y := my
-	
+
 	; get task pos/size info
 	WinGetPos tx, ty, tw, th, ahk_class Shell_TrayWnd
-	
+
 	; Taskbar is horizontal
 	tolerance := 10 * DPIScaleRatio
 	if (tw > th) {
@@ -263,16 +263,16 @@ getOptimalPosToTaskbar(mx,my,menu_w) {
 			menu_x := tx + tw
 		}
 	}
-	
+
 	return {x: menu_x, y: menu_y}
 }
 
 getItemIcon(fPath) {
 	SplitPath,fPath,,,fExt
 	FileGetAttrib,fAttr,%fPath%
-	
+
 	OutIconChoice := ""
-	
+
 	; support executable binaries
 	if fExt in exe,dll
 		OutIconChoice := fPath  . ":0"
@@ -303,12 +303,12 @@ getItemIcon(fPath) {
 		if FileExist(OutIcon)
 			OutIconChoice := OutIcon  . ":" . OutIconNum
 	}
-	
+
 	; support folder icons
 	if (InStr(fAttr,"D"))
 	{
 		OutIconChoice := "shell32.dll:4"
-		
+
 		; Customized may contain a hidden system file called desktop.ini
 		_dini := fPath . "\desktop.ini"
 		; https://msdn.microsoft.com/en-us/library/cc144102.aspx
@@ -316,7 +316,7 @@ getItemIcon(fPath) {
 		; case 1
 		; [.ShellClassInfo]
 		; IconResource=C:\WINDOWS\System32\SHELL32.dll,130
-		IniRead,_ico,%_dini%,.ShellClassInfo,IconResource,0		
+		IniRead,_ico,%_dini%,.ShellClassInfo,IconResource,0
 		if (_ico) {
 			lastComma := InStr(_ico,",",0,0)
 			OutIconChoice := Substr(_ico,1,lastComma-1) . ":" . substr(_ico,lastComma+1)
@@ -331,11 +331,11 @@ getItemIcon(fPath) {
 				OutIconChoice := _icoFile . ":" . _icoIdx
 		}
 	}
-	
+
 	; support associated filetypes
 	else if (StrLen(OutIconChoice) < 4)
 		OutIconChoice := getExtIcon(fExt)
-	
+
 	return OutIconChoice
 }
 
@@ -353,7 +353,7 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 	if (StrLen(DefaultIcon) < 4) {
 		; default file icon, if all else fails
 		DefaultIcon := "shell32.dll:0"
-		
+
 		;windows default to the OpenCommand if available
 		RegRead, OpenCommand, HKEY_CLASSES_ROOT, %from%\shell\open\command
 		if (OpenCommand) {
@@ -370,10 +370,10 @@ FirstRun_Trigger() {
 	global APP_NAME
 	global APP_VERSION
 	global APP_REVISION
-	
+
 	; prevent program auto exiting if we are displaying this dialog
 	G_FirstRun_Trigger := true
-	
+
 	Gui, AboutDialog:New, +LastFound +AlwaysOnTop +ToolWindow
 	Gui, AboutDialog:Margin, 10, -7
 	Gui, Color, white
@@ -396,7 +396,7 @@ FirstRun_Trigger() {
 	Gui, AboutDialog:Margin, , 10
 	Gui, Show, , About %APP_NAME%
 	return
-	
+
 	AboutDialogGuiEscape:
 	AboutDialogGuiClose:
 	ExitApp

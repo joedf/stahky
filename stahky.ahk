@@ -14,6 +14,9 @@ ListLines Off
 #NoTrayIcon
 #SingleInstance, Force
 
+; Ensure we used the libs from the correct folder if the working dir is different
+#Include %A_ScriptDir%
+
 #Include lib\utils.ahk
 
 ; uses PUM by Deo
@@ -21,13 +24,13 @@ ListLines Off
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.1.0.9"
-APP_REVISION := "2024/10/05"
+APP_VERSION := "0.1.0.10"
+APP_REVISION := "2025/02/02"
 
 ;@Ahk2Exe-SetName stahky
-;@Ahk2Exe-SetVersion 0.1.0.9
+;@Ahk2Exe-SetVersion 0.1.0.10
 ;@Ahk2Exe-SetDescription A take on stacky in AutoHotkey (AHK) for Windows 10
-;@Ahk2Exe-SetCopyright (c) 2024 joedf.github.io
+;@Ahk2Exe-SetCopyright (c) 2025 joedf.github.io
 ;@Ahk2Exe-SetCompanyName joedf.github.io
 ;@Ahk2Exe-SetMainIcon res\app.ico
 

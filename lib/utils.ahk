@@ -135,7 +135,11 @@ makeStahkyFile(iPath) {
 	SplitPath,iPath,outFolderName
 	; create the shortcut in the same folder as Stahky itself
 	LinkFile := A_ScriptDir . "\" . outFolderName . "." . STAHKY_EXT
-	FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %A_ScriptFullPath%, /stahky "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
+	if (A_IsCompiled) {
+		FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %A_ScriptDir%, /stahky "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
+	} else {
+		FileCreateShortcut, %A_AhkPath%, %LinkFile%, %A_ScriptDir%,"%A_ScriptFullPath%" /stahky "%iPath%"
+	}
 	MsgBox, 64, New Stahky created, A pinnable shortcut was created here: `n%LinkFile%
 }
 

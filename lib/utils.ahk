@@ -140,7 +140,7 @@ makeStahkyFile(iPath, configFile:="") {
 
 	; check for optional config file param
 	cfgParam := ""
-	if (StrLen(configFile) > 0 and FileExist(configFile)) {
+	if (StrLen(configFile) > 0 and isSettingsFile(configFile)) {
 		cfgFullPath := NormalizePath(configFile)
 		; basically: /config "my/config/file/path/here.ini"
 		cfgParam := G_STAHKY_ARG_CFG . " " . """" . cfgFullPath . """"

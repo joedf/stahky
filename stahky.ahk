@@ -53,30 +53,46 @@ MouseGetPos, mouseX, mouseY
 ; ================ [ CREATE a shortcut Stahky ] ================
 
 ; Smart auto-create *lnk pinnable shortcut file, when folder dragged-on-top of this app
-if ( (A_Args[1] != G_STAHKY_ARG) && (FileExist(A_Args[1])) )
+if ( A_Args[1] != G_STAHKY_ARG && FileExist(A_Args[1]) )
 {
 	; if config is unspecified use default
-	configFile := ""
+	_runPath := ""
+	_configFile := ""
 
-	; check if we were given a Directory / Folder, create a new stahky if so
-	FileGetAttrib,_t, % A_Args[1]
-	if InStr(_t,"D")
+	; parse args to see if folder and optinally and ini file was passed
+	for _n, param in A_Args
 	{
-		; Check if we have an config specified as well
-		if (A_Args.Length() >= 2) {
-			if isSettingsFile(A_Args[2])
+		; path must exist whether it is a file or folder
+		if FileExist(param)
+		{
+			; check if we were given a Directory / Folder, create a new stahky if so
+			FileGetAttrib,_t, % param
+			if InStr(_t,"D")
 			{
-				configFile := A_Args[2]
+				_runPath := param
+			}
+			else {
+				; otherwise, we likely have a file...
+				; Check if we have a settings / config file specified
+				if isSettingsFile(param)
+				{
+					_configFile := param
+				} else {
+					MsgBox, 48, %APP_NAME% - Error: Invalid config file, Error: Could not create stahky shortcut with invalid config file: "%param%"
+				}
 			}
 		}
+	}
 
+	; check if we got valid options, create the stahky file if so
+	if StrLen(_runPath) > 0 {
 		; create the stahky shortcut file
-		makeStahkyFile(A_Args[1], configFile)
-
+		makeStahkyFile(_runPath, _configFile)
 		; we're done here! don't execute the rest of the program ... arrrgg >_<
 		ExitApp
 	}
 }
+; otherwise, if we are not in "create mode", proceed as normal...
 
 ; ======================= [ RUN Stahky ] =======================
 
@@ -87,16 +103,46 @@ if !FileExist(StahkyConfigFile)
 
 ; get search path
 searchPath := A_WorkingDir . "\*"
-; use the Stahky file's path if available
-if ( (A_Args[1] == G_STAHKY_ARG) && (FileExist(A_Args[2])) )
+
+; Parse each parameter to see:
+;  1) If a folder or search path is provided
+;  2) If a custom stahky config/settings ini file is provided
+for _n, param in A_Args
 {
-	FileGetAttrib,_t, % A_Args[2]
-	if InStr(_t,"D") {
-		searchPath := A_Args[2] . "\*"
-	} else {
-		; warn user and exit if it's not a folder .... wut -,-
-		MsgBox, 48, %APP_NAME% - Error: Invalid stahky config, Error: Could not launch stahky as the following target folder was not found:`n%outTarget%
-		ExitApp
+	; check if we have a switch '/' param
+	if (SubStr(param, 1, 1) == "/") {
+		; and check if followed by a value
+		if (A_Args.Length() > _n) {
+			value := A_Args[_n+1]
+
+			; parse param for search path
+			if InStr(param, G_STAHKY_ARG)
+			{
+				if FileExist(value) {
+					; use the Stahky shortcut file's path if available
+					FileGetAttrib,_t, % value
+					if InStr(_t,"D") {
+						searchPath := value . "\*"
+					} else {
+						; warn user and exit if it's not a folder .... wut -,-
+						MsgBox, 48, %APP_NAME% - Error: Invalid stahky config, Error: Could not launch stahky as the following target folder was not found:`n%searchPath%
+						ExitApp
+					}
+				}
+			}
+			; parse param for config file
+			else if InStr(param, G_STAHKY_ARG_CFG)
+			{
+				_cfgPath := NormalizePath(value)
+				if isSettingsFile(_cfgPath)
+				{
+					StahkyConfigFile := _cfgPath
+				}
+			}
+		} else {
+			MsgBox, 48, %APP_NAME% - Error: Invalid stahky parameter, Error: Could not launch stahky with no value for parameter "%param%"
+			ExitApp
+		}
 	}
 }
 

@@ -125,7 +125,7 @@ for _n, param in A_Args
 						searchPath := value . "\*"
 					} else {
 						; warn user and exit if it's not a folder .... wut -,-
-						MsgBox, 48, %APP_NAME% - Error: Invalid stahky config, Error: Could not launch stahky as the following target folder was not found:`n%searchPath%
+						MsgBox, 48, %APP_NAME% - Error: Invalid stahky config, Error: Could not launch stahky as the following target folder was not found:`n"%value%"
 						ExitApp
 					}
 				}
@@ -140,7 +140,7 @@ for _n, param in A_Args
 				}
 			}
 		} else {
-			MsgBox, 48, %APP_NAME% - Error: Invalid stahky parameter, Error: Could not launch stahky with no value for parameter "%param%"
+			MsgBox, 48, %APP_NAME% - Error: Invalid stahky parameter, Error: Could not launch stahky with no value for parameter "%param%".
 			ExitApp
 		}
 	}

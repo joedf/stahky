@@ -127,19 +127,31 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 	return pMenu
 }
 
-makeStahkyFile(iPath) {
+makeStahkyFile(iPath, configFile:="") {
 	global APP_NAME
 	global STAHKY_EXT
+	global G_STAHKY_ARG_CFG
 
 	; assume we have a folder and get it's name
 	SplitPath,iPath,outFolderName
 	; create the shortcut in the same folder as Stahky itself
 	LinkFile := A_ScriptDir . "\" . outFolderName . "." . STAHKY_EXT
-	if (A_IsCompiled) {
-		FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %A_ScriptDir%, /stahky "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
-	} else {
-		FileCreateShortcut, %A_AhkPath%, %LinkFile%, %A_ScriptDir%,"%A_ScriptFullPath%" /stahky "%iPath%"
+
+	; check for optional config file param
+	cfgParam := ""
+	if (StrLen(configFile) > 0 and FileExist(configFile)) {
+		cfgFullPath := NormalizePath(configFile)
+		; basically: /config "my/config/file/path/here.ini"
+		cfgParam := G_STAHKY_ARG_CFG . " " . """" . cfgFullPath . """"
 	}
+
+	; Compiled vs script (using installed AHK) version shortcuts are different
+	if (A_IsCompiled) {
+		FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %A_ScriptDir%, /stahky "%iPath%" %cfgParam%
+	} else {
+		FileCreateShortcut, %A_AhkPath%, %LinkFile%, %A_ScriptDir%,"%A_ScriptFullPath%" /stahky "%iPath%" %cfgParam%
+	}
+
 	MsgBox, 64, New Stahky created, A pinnable shortcut was created here: `n%LinkFile%
 }
 
@@ -161,6 +173,22 @@ isStahkyFile(fPath) {
 		}
 	}
 	return false
+}
+
+isSettingsFile(fPath) {
+	global APP_NAME
+	if FileExist(fPath)
+	{
+		SplitPath, fPath , , , fileExtension
+		; check if we got an existing INI file
+		if InStr(fileExtension, "ini")
+		{
+			IniRead, outSection, %fPath%, %APP_NAME%
+			if StrLen(outSection) > 2
+				return True
+		}
+	}
+	return False
 }
 
 loadSettings(SCFile) {
@@ -367,6 +395,13 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 	}
 
 	return DefaultIcon
+}
+
+NormalizePath(path) { ; from AHK v1.1.37.02 documentation
+	cc := DllCall("GetFullPathName", "str", path, "uint", 0, "ptr", 0, "ptr", 0, "uint")
+	VarSetCapacity(buf, cc*2)
+	DllCall("GetFullPathName", "str", path, "uint", cc, "str", buf, "ptr", 0)
+	return buf
 }
 
 FirstRun_Trigger() {

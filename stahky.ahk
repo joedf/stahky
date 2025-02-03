@@ -40,6 +40,7 @@ APP_REVISION := "2025/02/02"
 
 STAHKY_EXT := APP_NAME . ".lnk"
 G_STAHKY_ARG := "/stahky"
+G_STAHKY_ARG_CFG := "/config"
 StahkyConfigFile := A_ScriptDir "\" APP_NAME ".ini"
 
 ; AutoHotkey behavioural settings needed
@@ -49,16 +50,35 @@ CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 MouseGetPos, mouseX, mouseY
 
+; ================ [ CREATE a shortcut Stahky ] ================
+
 ; Smart auto-create *lnk pinnable shortcut file, when folder dragged-on-top of this app
 if ( (A_Args[1] != G_STAHKY_ARG) && (FileExist(A_Args[1])) )
 {
+	; if config is unspecified use default
+	configFile := ""
+
+	; check if we were given a Directory / Folder, create a new stahky if so
 	FileGetAttrib,_t, % A_Args[1]
-	if InStr(_t,"D") {
-		makeStahkyFile(A_Args[1])
+	if InStr(_t,"D")
+	{
+		; Check if we have an config specified as well
+		if (A_Args.Length() >= 2) {
+			if isSettingsFile(A_Args[2])
+			{
+				configFile := A_Args[2]
+			}
+		}
+
+		; create the stahky shortcut file
+		makeStahkyFile(A_Args[1], configFile)
+
 		; we're done here! don't execute the rest of the program ... arrrgg >_<
 		ExitApp
 	}
 }
+
+; ======================= [ RUN Stahky ] =======================
 
 ; check for first run, if we want to show the intro dialog
 G_FirstRun_Trigger := false

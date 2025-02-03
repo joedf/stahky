@@ -130,6 +130,7 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 makeStahkyFile(iPath, configFile:="") {
 	global APP_NAME
 	global STAHKY_EXT
+	global G_STAHKY_ARG
 	global G_STAHKY_ARG_CFG
 
 	; assume we have a folder and get it's name
@@ -147,9 +148,9 @@ makeStahkyFile(iPath, configFile:="") {
 
 	; Compiled vs script (using installed AHK) version shortcuts are different
 	if (A_IsCompiled) {
-		FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %A_ScriptDir%, /stahky "%iPath%" %cfgParam%
+		FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %A_ScriptDir%, %G_STAHKY_ARG% "%iPath%" %cfgParam%
 	} else {
-		FileCreateShortcut, %A_AhkPath%, %LinkFile%, %A_ScriptDir%,"%A_ScriptFullPath%" /stahky "%iPath%" %cfgParam%
+		FileCreateShortcut, %A_AhkPath%, %LinkFile%, %A_ScriptDir%,"%A_ScriptFullPath%" %G_STAHKY_ARG% "%iPath%" %cfgParam%
 	}
 
 	MsgBox, 64, New Stahky created, A pinnable shortcut was created here: `n%LinkFile%

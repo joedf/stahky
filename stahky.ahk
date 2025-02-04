@@ -137,6 +137,9 @@ for _n, param in A_Args
 				if isSettingsFile(_cfgPath)
 				{
 					StahkyConfigFile := _cfgPath
+				} else {
+					; if the config file is invalid, we simply continue execution and
+					; ignore the given config. We use the default config file if possible.
 				}
 			}
 		} else {

@@ -270,6 +270,10 @@ PUM_out( msg, obj ) {
 			SplitPath, % obj.path,,_p
 			Run, % _p
 		}
+
+		global exitAfterFolderOpen
+		if (exitAfterFolderOpen)
+			ExitApp
 	}
 
 	; On RButton, open the about/firsttime use dialog

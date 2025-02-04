@@ -210,6 +210,7 @@ loadSettings(SCFile) {
 	IniRead, STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH,5
 	IniRead, SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst,0
 	IniRead, useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio,1
+	IniRead, exitAfterFolderOpen, %SCFile%,%APP_NAME%,exitAfterFolderOpen,1
 	IniRead, menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin,85
 	IniRead, menuMarginX, %SCFile%,%APP_NAME%,menuMarginX,4
 	IniRead, menuMarginY, %SCFile%,%APP_NAME%,menuMarginY,4
@@ -229,6 +230,7 @@ saveSettings(SCFile) {
 	IniWrite, % STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH
 	IniWrite, % SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst
 	IniWrite, % useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio
+	IniWrite, % exitAfterFolderOpen, %SCFile%,%APP_NAME%,exitAfterFolderOpen
 	IniWrite, % menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin
 	IniWrite, % menuMarginX, %SCFile%,%APP_NAME%,menuMarginX
 	IniWrite, % menuMarginY, %SCFile%,%APP_NAME%,menuMarginY

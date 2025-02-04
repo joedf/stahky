@@ -270,12 +270,29 @@ getTaskbarColor() {
 
 getTaskbarRect() {
 	; get task pos/size info
-	WinGetPos atx, aty, atw, ath, ahk_class Shell_TrayWnd
+	WinGetPos _tx, _ty, _tw, _th, ahk_class Shell_TrayWnd
+	
+	; MsgBox  %_tx% - %_ty% - %_tw% - %_th%
+	; Example value for standard 1080p screen with taskbar on the bottom
+	; 0 - 1032 - 1920 - 48
+	; On a 4k 3840x2400 px screen with taskbar on the bottom
+	; 0 - 2324 - 3840 - 76
+	; On a 4k 3840x2400 px screen with taskbar on the Left
+	; 0 - 0 - 155 - 2400
+	; On a 4k 3840x2400 px screen with taskbar on the Top
+	; 0 - 0 - 3840 - 76
+	; On a 4k 3840x2400 px screen with taskbar on the Right
+	; 3685 - 0 - 155 - 2400
 
 	; bugfix for when the start menu is shown (on Win 10 and 11), WinGetPos fails
 	; https://github.com/joedf/stahky/issues/15
 	; Use an alternative method to determine the whereabouts of the taskbar
-	; if (StrLen(tx) == 0) {
+	; The correct calculation that handles mutiple monitors with different taskbar
+	; is far more complex, see https://stackoverflow.com/a/9826269/883015
+	; We'll just hope this is good enough for now...
+
+	; if WinGetPos failed, the values will be blank
+	if (StrLen(_tx) == 0) {
 		SysGet, Mon, Monitor
 		SysGet, MonW, MonitorWorkArea
 		; MsgBox %MonLeft% - %MonTop% - %MonRight% - %MonBottom%`n%MonWLeft% - %MonWTop% - %MonWRight% - %MonWBottom%
@@ -310,34 +327,28 @@ getTaskbarRect() {
 		tx := cx
 		ty := ch
 		if (cy != 0) {
-			ty := 0
+			ty := sx
 		}
 		tw := sw
 		th := Abs(ch - sh)
 		if (cw < sw) { ; vertical taskbar
 			th := ch
+			ty := sy
 			if (cx != 0) { ; taskbar on the Left
 				tw := cx
+				tx := sx
 			} else { ; on the right
 				tx := cw
 				tw := Abs(cw - sw)
 			}
 		}
-	; } else {
-	; 	MsgBox  %tx% - %ty% - %tw% - %th%
-	; 	; Example value for standard 1080p screen with taskbar on the bottom
-	; 	; 0 - 1032 - 1920 - 48
-	; 	; On a 4k 3840x2400 px screen with taskbar on the bottom
-	; 	; 0 - 2324 - 3840 - 76
-	; 	; On a 4k 3840x2400 px screen with taskbar on the Left
-	; 	; 0 - 0 - 155 - 2400
-	; 	; On a 4k 3840x2400 px screen with taskbar on the Top
-	; 	; 0 - 0 - 3840 - 76
-	; 	; On a 4k 3840x2400 px screen with taskbar on the Right
-	; 	; 3685 - 0 - 155 - 2400
-	; }
 
-	MsgBox  %atx% - %aty% - %atw% - %ath%`n%tx% - %ty% - %tw% - %th%
+		return [tx, ty, tw, th]
+	}
+
+	; MsgBox  %_tx% - %_ty% - %_tw% - %_th%`n%tx% - %ty% - %tw% - %th%
+	
+	return [_tx, _ty, _tw, _th]
 }
 
 getOptimalPosToTaskbar(mx,my,menu_w) {
@@ -347,9 +358,10 @@ getOptimalPosToTaskbar(mx,my,menu_w) {
 	menu_x := mx, menu_y := my
 
 	; get task pos/size info
-	WinGetPos tx, ty, tw, th, ahk_class Shell_TrayWnd
-
-	getTaskbarRect()
+	sz := getTaskbarRect()
+	tx := sz[1], ty := sz[2]
+	tw := sz[3], th := sz[4]
+	; MsgBox  %tx% - %ty% - %tw% - %th%
 
 	; Taskbar is horizontal
 	tolerance := 10 * DPIScaleRatio

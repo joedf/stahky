@@ -127,19 +127,32 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 	return pMenu
 }
 
-makeStahkyFile(iPath) {
+makeStahkyFile(iPath, configFile:="") {
 	global APP_NAME
 	global STAHKY_EXT
+	global G_STAHKY_ARG
+	global G_STAHKY_ARG_CFG
 
 	; assume we have a folder and get it's name
 	SplitPath,iPath,outFolderName
 	; create the shortcut in the same folder as Stahky itself
 	LinkFile := A_ScriptDir . "\" . outFolderName . "." . STAHKY_EXT
-	if (A_IsCompiled) {
-		FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %A_ScriptDir%, /stahky "%iPath%", ;Description, IconFile, ShortcutKey, IconNumber, RunState
-	} else {
-		FileCreateShortcut, %A_AhkPath%, %LinkFile%, %A_ScriptDir%,"%A_ScriptFullPath%" /stahky "%iPath%"
+
+	; check for optional config file param
+	cfgParam := ""
+	if (StrLen(configFile) > 0 and isSettingsFile(configFile)) {
+		cfgFullPath := NormalizePath(configFile)
+		; basically: /config "my/config/file/path/here.ini"
+		cfgParam := G_STAHKY_ARG_CFG . " " . """" . cfgFullPath . """"
 	}
+
+	; Compiled vs script (using installed AHK) version shortcuts are different
+	if (A_IsCompiled) {
+		FileCreateShortcut, %A_ScriptFullPath%, %LinkFile%, %A_ScriptDir%, %G_STAHKY_ARG% "%iPath%" %cfgParam%
+	} else {
+		FileCreateShortcut, %A_AhkPath%, %LinkFile%, %A_ScriptDir%,"%A_ScriptFullPath%" %G_STAHKY_ARG% "%iPath%" %cfgParam%
+	}
+
 	MsgBox, 64, New Stahky created, A pinnable shortcut was created here: `n%LinkFile%
 }
 
@@ -163,6 +176,22 @@ isStahkyFile(fPath) {
 	return false
 }
 
+isSettingsFile(fPath) {
+	global APP_NAME
+	if FileExist(fPath)
+	{
+		SplitPath, fPath , , , fileExtension
+		; check if we got an existing INI file
+		if InStr(fileExtension, "ini")
+		{
+			IniRead, outSection, %fPath%, %APP_NAME%
+			if StrLen(outSection) > 2
+				return True
+		}
+	}
+	return False
+}
+
 loadSettings(SCFile) {
 	global
 	; get taskbar colors
@@ -181,6 +210,7 @@ loadSettings(SCFile) {
 	IniRead, STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH,5
 	IniRead, SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst,0
 	IniRead, useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio,1
+	IniRead, exitAfterFolderOpen, %SCFile%,%APP_NAME%,exitAfterFolderOpen,1
 	IniRead, menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin,85
 	IniRead, menuMarginX, %SCFile%,%APP_NAME%,menuMarginX,4
 	IniRead, menuMarginY, %SCFile%,%APP_NAME%,menuMarginY,4
@@ -200,6 +230,7 @@ saveSettings(SCFile) {
 	IniWrite, % STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH
 	IniWrite, % SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst
 	IniWrite, % useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio
+	IniWrite, % exitAfterFolderOpen, %SCFile%,%APP_NAME%,exitAfterFolderOpen
 	IniWrite, % menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin
 	IniWrite, % menuMarginX, %SCFile%,%APP_NAME%,menuMarginX
 	IniWrite, % menuMarginY, %SCFile%,%APP_NAME%,menuMarginY
@@ -237,14 +268,125 @@ getTaskbarColor() {
 	return TaskbarColor
 }
 
+GetMonitorMouseIsIn() {
+	; code from Maestr0
+	; https://www.autohotkey.com/boards/viewtopic.php?p=235163#p235163
+
+	; get the mouse coordinates first
+	Coordmode, Mouse, Screen	; use Screen, so we can compare the coords with the sysget information`
+	MouseGetPos, Mx, My
+
+	SysGet, MonitorCount, 80	; monitorcount, so we know how many monitors there are, and the number of loops we need to do
+	Loop, %MonitorCount%
+	{
+		SysGet, mon%A_Index%, Monitor, %A_Index%	; "Monitor" will get the total desktop space of the monitor, including taskbars
+
+		if ( Mx >= mon%A_Index%left ) && ( Mx < mon%A_Index%right ) && ( My >= mon%A_Index%top ) && ( My < mon%A_Index%bottom )
+		{
+			ActiveMon := A_Index
+			break
+		}
+	}
+	return ActiveMon
+}
+
+getTaskbarRect(hMonitor := "") {
+	; get task pos/size info
+	WinGetPos _tx, _ty, _tw, _th, ahk_class Shell_TrayWnd
+	
+	; MsgBox  %_tx% - %_ty% - %_tw% - %_th%
+	; Example value for standard 1080p screen with taskbar on the bottom
+	; 0 - 1032 - 1920 - 48
+	; On a 4k 3840x2400 px screen with taskbar on the bottom
+	; 0 - 2324 - 3840 - 76
+	; On a 4k 3840x2400 px screen with taskbar on the Left
+	; 0 - 0 - 155 - 2400
+	; On a 4k 3840x2400 px screen with taskbar on the Top
+	; 0 - 0 - 3840 - 76
+	; On a 4k 3840x2400 px screen with taskbar on the Right
+	; 3685 - 0 - 155 - 2400
+
+	; bugfix for when the start menu is shown (on Win 10 and 11), WinGetPos fails
+	; https://github.com/joedf/stahky/issues/15
+	; Use an alternative method to determine the whereabouts of the taskbar
+	; The correct calculation that handles mutiple monitors with different taskbar
+	; is far more complex, see https://stackoverflow.com/a/9826269/883015
+	; We'll just hope this is good enough for now...
+
+	; if WinGetPos failed, the values will be blank
+	if (StrLen(_tx) == 0) {
+		SysGet, Mon, Monitor, %hMonitor%
+		SysGet, MonW, MonitorWorkArea, %hMonitor%
+		; MsgBox %MonLeft% - %MonTop% - %MonRight% - %MonBottom%`n%MonWLeft% - %MonWTop% - %MonWRight% - %MonWBottom%
+		; Example value for standard 1080p screen with taskbar on the bottom
+		; 0 - 0 - 1920 - 1080
+		; 0 - 0 - 1920 - 1032
+		; On a 4k 3840x2400 px screen with taskbar on the bottom
+		; 0 - 0 - 3840 - 2400
+		; 0 - 0 - 3840 - 2324
+		; On a 4k 3840x2400 px screen with taskbar on the Left
+		; 0 - 0 - 3840 - 2400
+		; 155 - 0 - 3840 - 2400
+		; On a 4k 3840x2400 px screen with taskbar on the Top
+		; 0 - 0 - 3840 - 2400
+		; 0 - 76 - 3840 - 2400
+		; On a 4k 3840x2400 px screen with taskbar on the Right
+		; 0 - 0 - 3840 - 2400
+		; 0 - 0 - 3685 - 2400
+		
+		; screen info
+		sx := MonLeft
+		sy := MonTop
+		sw := Abs(MonRight - MonLeft)
+		sh := Abs(MonBottom - MonTop)
+		; client area info
+		cx := MonWLeft
+		cy := MonWTop
+		cw := Abs(MonWRight - MonWLeft)
+		ch := Abs(MonWBottom - MonWTop)
+
+		; taskbar info
+		tx := cx
+		ty := ch
+		if (cy != 0) {
+			ty := sx
+		}
+		tw := sw
+		th := Abs(ch - sh)
+		if (cw < sw) { ; vertical taskbar
+			th := ch
+			ty := sy
+			if (cx != 0) { ; taskbar on the Left
+				tw := cx
+				tx := sx
+			} else { ; on the right
+				tx := cw
+				tw := Abs(cw - sw)
+			}
+		}
+
+		return [tx, ty, tw, th]
+	}
+
+	; MsgBox  %_tx% - %_ty% - %_tw% - %_th%`n%tx% - %ty% - %tw% - %th%
+	
+	return [_tx, _ty, _tw, _th]
+}
+
 getOptimalPosToTaskbar(mx,my,menu_w) {
 	global DPIScaleRatio
 
 	; default menu pos to mouse pos
 	menu_x := mx, menu_y := my
 
+	; determine "Active" monitor/screen based on mouse position
+	hMonitor := GetMonitorMouseIsIn()
+
 	; get task pos/size info
-	WinGetPos tx, ty, tw, th, ahk_class Shell_TrayWnd
+	sz := getTaskbarRect(hMonitor)
+	tx := sz[1], ty := sz[2]
+	tw := sz[3], th := sz[4]
+	; MsgBox  %tx% - %ty% - %tw% - %th%
 
 	; Taskbar is horizontal
 	tolerance := 10 * DPIScaleRatio
@@ -367,6 +509,13 @@ getExtIcon(Ext) { ; modified from AHK_User - https://www.autohotkey.com/boards/v
 	}
 
 	return DefaultIcon
+}
+
+NormalizePath(path) { ; from AHK v1.1.37.02 documentation
+	cc := DllCall("GetFullPathName", "str", path, "uint", 0, "ptr", 0, "ptr", 0, "uint")
+	VarSetCapacity(buf, cc*2)
+	DllCall("GetFullPathName", "str", path, "uint", cc, "str", buf, "ptr", 0)
+	return buf
 }
 
 FirstRun_Trigger() {

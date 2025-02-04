@@ -1,7 +1,7 @@
 ; stahky
-; by joedf - 2020.07.10
+; by joedf - started 2020.07.10
 ;
-; inspried from Stacky (by Pawel Turlejski)
+; inspired from Stacky (by Pawel Turlejski)
 ; https://github.com/pawelt/stacky
 ; https://web.archive.org/web/20130927190146/http://justafewlines.com/2013/04/stacky/
 
@@ -24,11 +24,11 @@ ListLines Off
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.1.0.10"
-APP_REVISION := "2025/02/02"
+APP_VERSION := "0.2.0.1"
+APP_REVISION := "2025/02/03"
 
 ;@Ahk2Exe-SetName stahky
-;@Ahk2Exe-SetVersion 0.1.0.10
+;@Ahk2Exe-SetVersion 0.2.0.1
 ;@Ahk2Exe-SetDescription A take on stacky in AutoHotkey (AHK) for Windows 10
 ;@Ahk2Exe-SetCopyright (c) 2025 joedf.github.io
 ;@Ahk2Exe-SetCompanyName joedf.github.io
@@ -40,6 +40,7 @@ APP_REVISION := "2025/02/02"
 
 STAHKY_EXT := APP_NAME . ".lnk"
 G_STAHKY_ARG := "/stahky"
+G_STAHKY_ARG_CFG := "/config"
 StahkyConfigFile := A_ScriptDir "\" APP_NAME ".ini"
 
 ; AutoHotkey behavioural settings needed
@@ -49,16 +50,51 @@ CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 MouseGetPos, mouseX, mouseY
 
+; ================ [ CREATE a shortcut Stahky ] ================
+
 ; Smart auto-create *lnk pinnable shortcut file, when folder dragged-on-top of this app
-if ( (A_Args[1] != G_STAHKY_ARG) && (FileExist(A_Args[1])) )
+if ( A_Args[1] != G_STAHKY_ARG && FileExist(A_Args[1]) )
 {
-	FileGetAttrib,_t, % A_Args[1]
-	if InStr(_t,"D") {
-		makeStahkyFile(A_Args[1])
+	; if config is unspecified use default
+	_runPath := ""
+	_configFile := ""
+
+	; parse args to see if folder and optinally and ini file was passed
+	for _n, param in A_Args
+	{
+		; path must exist whether it is a file or folder
+		if FileExist(param)
+		{
+			; check if we were given a Directory / Folder, create a new stahky if so
+			FileGetAttrib,_t, % param
+			if InStr(_t,"D")
+			{
+				_runPath := param
+			}
+			else {
+				; otherwise, we likely have a file...
+				; Check if we have a settings / config file specified
+				if isSettingsFile(param)
+				{
+					_configFile := param
+				} else {
+					MsgBox, 48, %APP_NAME% - Error: Invalid config file, Error: Could not create stahky shortcut with invalid config file: "%param%"
+				}
+			}
+		}
+	}
+
+	; check if we got valid options, create the stahky file if so
+	if StrLen(_runPath) > 0 {
+		; create the stahky shortcut file
+		makeStahkyFile(_runPath, _configFile)
 		; we're done here! don't execute the rest of the program ... arrrgg >_<
 		ExitApp
 	}
 }
+; otherwise, if we are not in "create mode", proceed as normal...
+
+; ======================= [ RUN Stahky ] =======================
 
 ; check for first run, if we want to show the intro dialog
 G_FirstRun_Trigger := false
@@ -67,16 +103,49 @@ if !FileExist(StahkyConfigFile)
 
 ; get search path
 searchPath := A_WorkingDir . "\*"
-; use the Stahky file's path if available
-if ( (A_Args[1] == G_STAHKY_ARG) && (FileExist(A_Args[2])) )
+
+; Parse each parameter to see:
+;  1) If a folder or search path is provided
+;  2) If a custom stahky config/settings ini file is provided
+for _n, param in A_Args
 {
-	FileGetAttrib,_t, % A_Args[2]
-	if InStr(_t,"D") {
-		searchPath := A_Args[2] . "\*"
-	} else {
-		; warn user and exit if it's not a folder .... wut -,-
-		MsgBox, 48, %APP_NAME% - Error: Invalid stahky config, Error: Could not launch stahky as the following target folder was not found:`n%outTarget%
-		ExitApp
+	; check if we have a switch '/' param
+	if (SubStr(param, 1, 1) == "/") {
+		; and check if followed by a value
+		if (A_Args.Length() > _n) {
+			value := A_Args[_n+1]
+
+			; parse param for search path
+			if InStr(param, G_STAHKY_ARG)
+			{
+				if FileExist(value) {
+					; use the Stahky shortcut file's path if available
+					FileGetAttrib,_t, % value
+					if InStr(_t,"D") {
+						searchPath := value . "\*"
+					} else {
+						; warn user and exit if it's not a folder .... wut -,-
+						MsgBox, 48, %APP_NAME% - Error: Invalid stahky config, Error: Could not launch stahky as the following target folder was not found:`n"%value%"
+						ExitApp
+					}
+				}
+			}
+			; parse param for config file
+			else if InStr(param, G_STAHKY_ARG_CFG)
+			{
+				_cfgPath := NormalizePath(value)
+				if isSettingsFile(_cfgPath)
+				{
+					StahkyConfigFile := _cfgPath
+				} else {
+					; if the config file is invalid, we simply continue execution and
+					; ignore the given config. We use the default config file if possible.
+				}
+			}
+		} else {
+			MsgBox, 48, %APP_NAME% - Error: Invalid stahky parameter, Error: Could not launch stahky with no value for parameter "%param%".
+			ExitApp
+		}
 	}
 }
 
@@ -201,6 +270,10 @@ PUM_out( msg, obj ) {
 			SplitPath, % obj.path,,_p
 			Run, % _p
 		}
+
+		global exitAfterFolderOpen
+		if (exitAfterFolderOpen)
+			ExitApp
 	}
 
 	; On RButton, open the about/firsttime use dialog

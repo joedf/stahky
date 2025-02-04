@@ -7,7 +7,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
   - You should edit the shortcut's icon before pinning it.
   - Once pinned, you can delete the shortcut file.
   - Note: you can set files as hidden if you don't want them to appear in the Stahky menu.
-  - Note: You can drag a folder along with a stahky ini config file to use separate settings for each shortcut.
+  - Note: you can drag a folder along with a stahky ini config file to use separate settings for each shortcut.
 - Appearance, DPI, offsets, etc. settings
   - Colors are determined automatically on the first run
   - Edit stahky.ini for specific colors, offsets (x or y), use DPI for size and position calculation, ...

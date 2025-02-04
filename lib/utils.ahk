@@ -268,7 +268,29 @@ getTaskbarColor() {
 	return TaskbarColor
 }
 
-getTaskbarRect() {
+GetMonitorMouseIsIn() {
+	; code from Maestr0
+	; https://www.autohotkey.com/boards/viewtopic.php?p=235163#p235163
+
+	; get the mouse coordinates first
+	Coordmode, Mouse, Screen	; use Screen, so we can compare the coords with the sysget information`
+	MouseGetPos, Mx, My
+
+	SysGet, MonitorCount, 80	; monitorcount, so we know how many monitors there are, and the number of loops we need to do
+	Loop, %MonitorCount%
+	{
+		SysGet, mon%A_Index%, Monitor, %A_Index%	; "Monitor" will get the total desktop space of the monitor, including taskbars
+
+		if ( Mx >= mon%A_Index%left ) && ( Mx < mon%A_Index%right ) && ( My >= mon%A_Index%top ) && ( My < mon%A_Index%bottom )
+		{
+			ActiveMon := A_Index
+			break
+		}
+	}
+	return ActiveMon
+}
+
+getTaskbarRect(hMonitor := "") {
 	; get task pos/size info
 	WinGetPos _tx, _ty, _tw, _th, ahk_class Shell_TrayWnd
 	
@@ -293,8 +315,8 @@ getTaskbarRect() {
 
 	; if WinGetPos failed, the values will be blank
 	if (StrLen(_tx) == 0) {
-		SysGet, Mon, Monitor
-		SysGet, MonW, MonitorWorkArea
+		SysGet, Mon, Monitor, %hMonitor%
+		SysGet, MonW, MonitorWorkArea, %hMonitor%
 		; MsgBox %MonLeft% - %MonTop% - %MonRight% - %MonBottom%`n%MonWLeft% - %MonWTop% - %MonWRight% - %MonWBottom%
 		; Example value for standard 1080p screen with taskbar on the bottom
 		; 0 - 0 - 1920 - 1080
@@ -357,8 +379,11 @@ getOptimalPosToTaskbar(mx,my,menu_w) {
 	; default menu pos to mouse pos
 	menu_x := mx, menu_y := my
 
+	; determine "Active" monitor/screen based on mouse position
+	hMonitor := GetMonitorMouseIsIn()
+
 	; get task pos/size info
-	sz := getTaskbarRect()
+	sz := getTaskbarRect(hMonitor)
 	tx := sz[1], ty := sz[2]
 	tw := sz[3], th := sz[4]
 	; MsgBox  %tx% - %ty% - %tw% - %th%

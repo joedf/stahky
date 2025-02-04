@@ -277,20 +277,40 @@ getOptimalPosToTaskbar(mx,my,menu_w) {
 	; get task pos/size info
 	WinGetPos tx, ty, tw, th, ahk_class Shell_TrayWnd
 
-	; bugfix for when the start menu is shown (on Win11), WinGetPos fails
+	; bugfix for when the start menu is shown (on Win 10 and 11), WinGetPos fails
 	; https://github.com/joedf/stahky/issues/15
 	; Use an alternative method to determine the whereabouts of the taskbar
 	if (StrLen(tx) == 0) {
 		SysGet, Mon, Monitor
 		SysGet, MonW, MonitorWorkArea
-		; MsgBox %MonLeft% - %MonTop% - %MonRight% - %MonBottom% `n %MonWLeft% - %MonWTop% - %MonWRight% - %MonWBottom%
+		MsgBox %MonLeft% - %MonTop% - %MonRight% - %MonBottom%`n%MonWLeft% - %MonWTop% - %MonWRight% - %MonWBottom%
 		; Example value for standard 1080p screen with taskbar on the bottom
 		; 0 - 0 - 1920 - 1080
 		; 0 - 0 - 1920 - 1032
+		; On a 4k 3840x2400 px screen with taskbar on the bottom
+		; 0 - 0 - 3840 - 2400
+		; 0 - 0 - 3840 - 2324
+		; On a 4k 3840x2400 px screen with taskbar on the Left
+		; 0 - 0 - 3840 - 2400
+		; 155 - 0 - 3840 - 2400
+		; On a 4k 3840x2400 px screen with taskbar on the Top
+		; 0 - 0 - 3840 - 2400
+		; 0 - 76 - 3840 - 2400
+		; On a 4k 3840x2400 px screen with taskbar on the Top
+		; 0 - 0 - 3840 - 2400
+		; 0 - 0 - 3685 - 2400
 	} else {
-		; MsgBox  %tx% - %ty% - %tw% - %th%
+		MsgBox  %tx% - %ty% - %tw% - %th%
 		; Example value for standard 1080p screen with taskbar on the bottom
 		; 0 - 1032 - 1920 - 48
+		; On a 4k 3840x2400 px screen with taskbar on the bottom
+		; 0 - 2324 - 3840 - 76
+		; On a 4k 3840x2400 px screen with taskbar on the Left
+		; 0 - 0 - 155 - 2400
+		; On a 4k 3840x2400 px screen with taskbar on the Top
+		; 0 - 0 - 3840 - 76
+		; On a 4k 3840x2400 px screen with taskbar on the Right
+		; 3685 - 0 - 155 - 2400
 	}
 
 	; Taskbar is horizontal

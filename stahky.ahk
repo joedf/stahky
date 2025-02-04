@@ -1,7 +1,7 @@
 ; stahky
-; by joedf - 2020.07.10
+; by joedf - started 2020.07.10
 ;
-; inspried from Stacky (by Pawel Turlejski)
+; inspired from Stacky (by Pawel Turlejski)
 ; https://github.com/pawelt/stacky
 ; https://web.archive.org/web/20130927190146/http://justafewlines.com/2013/04/stacky/
 
@@ -24,11 +24,11 @@ ListLines Off
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.1.0.10"
-APP_REVISION := "2025/02/02"
+APP_VERSION := "0.2.0.1"
+APP_REVISION := "2025/02/03"
 
 ;@Ahk2Exe-SetName stahky
-;@Ahk2Exe-SetVersion 0.1.0.10
+;@Ahk2Exe-SetVersion 0.2.0.1
 ;@Ahk2Exe-SetDescription A take on stacky in AutoHotkey (AHK) for Windows 10
 ;@Ahk2Exe-SetCopyright (c) 2025 joedf.github.io
 ;@Ahk2Exe-SetCompanyName joedf.github.io

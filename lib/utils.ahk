@@ -6,7 +6,23 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 	global STAHKY_START_TIME
 	global STAHKY_MAX_RUN_TIME
 
+	global ShowOpenCurrentFolder
 	global SortFoldersFirst
+
+	if (ShowOpenCurrentFolder)
+	{
+		; If we have a folder and the show current folder option is enabled,
+		; Show an "open: ..." folder option first. For more info see:
+		; https://github.com/joedf/stahky/issues/20
+		if (SubStr(searchPath, 1-2) == "\*")
+		{
+			currentDir := { "name": "Open this folder..."
+				,"path": SubStr(searchPath, 1, 0-2)
+				,"icon": "shell32.dll:4" }
+			pMenu.Add(currentDir)
+			pMenu.Add() ; add separator
+		}
+	}
 
 	if (SortFoldersFirst)
 	{
@@ -211,6 +227,7 @@ loadSettings(SCFile) {
 	IniRead, SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst,0
 	IniRead, useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio,1
 	IniRead, exitAfterFolderOpen, %SCFile%,%APP_NAME%,exitAfterFolderOpen,1
+	IniRead, ShowOpenCurrentFolder, %SCFile%,%APP_NAME%,ShowOpenCurrentFolder,0
 	IniRead, menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin,85
 	IniRead, menuMarginX, %SCFile%,%APP_NAME%,menuMarginX,4
 	IniRead, menuMarginY, %SCFile%,%APP_NAME%,menuMarginY,4
@@ -230,6 +247,7 @@ saveSettings(SCFile) {
 	IniWrite, % STAHKY_MAX_DEPTH, %SCFile%,%APP_NAME%,STAHKY_MAX_DEPTH
 	IniWrite, % SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst
 	IniWrite, % useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio
+	IniWrite, % ShowOpenCurrentFolder, %SCFile%,%APP_NAME%,ShowOpenCurrentFolder
 	IniWrite, % exitAfterFolderOpen, %SCFile%,%APP_NAME%,exitAfterFolderOpen
 	IniWrite, % menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin
 	IniWrite, % menuMarginX, %SCFile%,%APP_NAME%,menuMarginX

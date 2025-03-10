@@ -16,10 +16,10 @@ MakeStahkyMenu( pMenu, searchPath, iPUM, pMenuParams, recursion_CurrentDepth := 
 		; https://github.com/joedf/stahky/issues/20
 		if (SubStr(searchPath, 1-2) == "\*")
 		{
-			currentDir := { "name": "Open this folder..."
+			currentDirItem := { "name": "Open this folder..."
 				,"path": SubStr(searchPath, 1, 0-2)
 				,"icon": "shell32.dll:4" }
-			pMenu.Add(currentDir)
+			pMenu.Add(currentDirItem)
 			pMenu.Add() ; add separator
 		}
 	}

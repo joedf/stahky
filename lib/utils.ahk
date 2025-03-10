@@ -228,6 +228,7 @@ loadSettings(SCFile) {
 	IniRead, useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio,1
 	IniRead, exitAfterFolderOpen, %SCFile%,%APP_NAME%,exitAfterFolderOpen,1
 	IniRead, ShowOpenCurrentFolder, %SCFile%,%APP_NAME%,ShowOpenCurrentFolder,0
+	IniRead, ShowAtMousePosition, %SCFile%,%APP_NAME%,ShowAtMousePosition,0
 	IniRead, menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin,85
 	IniRead, menuMarginX, %SCFile%,%APP_NAME%,menuMarginX,4
 	IniRead, menuMarginY, %SCFile%,%APP_NAME%,menuMarginY,4
@@ -248,6 +249,7 @@ saveSettings(SCFile) {
 	IniWrite, % SortFoldersFirst, %SCFile%,%APP_NAME%,SortFoldersFirst
 	IniWrite, % useDPIScaleRatio, %SCFile%,%APP_NAME%,useDPIScaleRatio
 	IniWrite, % ShowOpenCurrentFolder, %SCFile%,%APP_NAME%,ShowOpenCurrentFolder
+	IniWrite, % ShowAtMousePosition, %SCFile%,%APP_NAME%,ShowAtMousePosition
 	IniWrite, % exitAfterFolderOpen, %SCFile%,%APP_NAME%,exitAfterFolderOpen
 	IniWrite, % menuTextMargin, %SCFile%,%APP_NAME%,menuTextMargin
 	IniWrite, % menuMarginX, %SCFile%,%APP_NAME%,menuMarginX

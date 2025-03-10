@@ -196,9 +196,15 @@ STAHKY_START_TIME := A_TickCount
 ; Populate Stahkys!
 MakeStahkyMenu(menu, searchPath, pm, menuParams )
 
-; Calculate optimal postion for the menu to be near the Taskbar
-menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
-menuPos := getOptimalPosToTaskbar(mouseX, mouseY, menuWidth)
+; Calculate the coordinates to show the menu at
+if (ShowAtMousePosition) {
+	MouseGetPos, mouseX, mouseY
+	menuPos := {x: mouseX, y: mouseY}
+} else {
+	; Calculate optimal postion for the menu to be near the Taskbar
+	menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
+	menuPos := getOptimalPosToTaskbar(mouseX, mouseY, menuWidth)
+}
 
 ; Display the PUM menu
 item := menu.Show( menuPos.x+offsetX, menuPos.y+offsetY )

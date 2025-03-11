@@ -24,8 +24,8 @@ ListLines Off
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.2.0.1"
-APP_REVISION := "2025/02/03"
+APP_VERSION := "0.3.1.8"
+APP_REVISION := "2025/03/10"
 
 ;@Ahk2Exe-SetName stahky
 ;@Ahk2Exe-SetVersion 0.2.0.1

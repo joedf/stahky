@@ -28,7 +28,7 @@ APP_VERSION := "0.3.1.8"
 APP_REVISION := "2025/03/10"
 
 ;@Ahk2Exe-SetName stahky
-;@Ahk2Exe-SetVersion 0.2.0.1
+;@Ahk2Exe-SetVersion 0.3.1.8
 ;@Ahk2Exe-SetDescription A take on stacky in AutoHotkey (AHK) for Windows 10
 ;@Ahk2Exe-SetCopyright (c) 2025 joedf.github.io
 ;@Ahk2Exe-SetCompanyName joedf.github.io

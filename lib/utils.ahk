@@ -236,6 +236,7 @@ loadSettings(SCFile) {
 	IniRead, sbgColor, %SCFile%,%APP_NAME%,menuSelectedBGColor, % TaskbarSColor ;0x272727
 	IniRead, stextColor, %SCFile%,%APP_NAME%,menuSelectedTextColor, % TaskbarTColor ; B/W based on a luma/contrast formula
 	IniRead, textColor, %SCFile%,%APP_NAME%,menuTextColor, % TaskbarTColor
+	IniRead, PUM_flags, %SCFile%,%APP_NAME%,PUM_flags,noanim hcenter
 }
 
 saveSettings(SCFile) {
@@ -258,6 +259,7 @@ saveSettings(SCFile) {
 	IniWrite, % sbgColor, %SCFile%,%APP_NAME%,menuSelectedBGColor
 	IniWrite, % stextColor, %SCFile%,%APP_NAME%,menuSelectedTextColor
 	IniWrite, % textColor, %SCFile%,%APP_NAME%,menuTextColor
+	IniWrite, % PUM_flags, %SCFile%,%APP_NAME%,PUM_flags
 }
 
 lightenColor(cHex, L:=2.64) {

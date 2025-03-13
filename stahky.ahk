@@ -198,16 +198,17 @@ MakeStahkyMenu(menu, searchPath, pm, menuParams )
 
 ; Calculate the coordinates to show the menu at
 if (ShowAtMousePosition) {
-	MouseGetPos, mouseX, mouseY
 	menuPos := {x: mouseX, y: mouseY}
+	PUM_flags := "" ; ignore flags if this mode is used
 } else {
 	; Calculate optimal postion for the menu to be near the Taskbar
-	menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
+	; menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
+	menuWidth := 0 ; rely on PUM's built-in alignment flags, e.g. hleft or hcenter
 	menuPos := getOptimalPosToTaskbar(mouseX, mouseY, menuWidth)
 }
 
 ; Display the PUM menu
-item := menu.Show( menuPos.x+offsetX, menuPos.y+offsetY )
+item := menu.Show( menuPos.x+offsetX, menuPos.y+offsetY, PUM_flags )
 
 ; Destroy everything PUM on program end
 pm.Destroy()

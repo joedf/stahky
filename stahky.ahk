@@ -24,11 +24,11 @@ ListLines Off
 #Include lib\PUM.ahk
 
 APP_NAME := "stahky"
-APP_VERSION := "0.3.2.1"
-APP_REVISION := "2025/03/12"
+APP_VERSION := "0.3.3.3"
+APP_REVISION := "2025/03/13"
 
 ;@Ahk2Exe-SetName stahky
-;@Ahk2Exe-SetVersion 0.3.2.1
+;@Ahk2Exe-SetVersion 0.3.3.3
 ;@Ahk2Exe-SetDescription A take on stacky in AutoHotkey (AHK) for Windows 10
 ;@Ahk2Exe-SetCopyright (c) 2025 joedf.github.io
 ;@Ahk2Exe-SetCompanyName joedf.github.io

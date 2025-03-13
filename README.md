@@ -13,7 +13,7 @@ A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Win
   - Edit stahky.ini for specific colors, offsets (x or y), use DPI for size and position calculation, ...
   - The `SortFoldersFirst` option allows you to have folders appear first at the top of each menu accordingly.
   - Use `ShowAtMousePosition=1` in the ini config file to have the menu show up at the current mouse postion instead of near the taskbar. However if this mode is used, `PUM_flags` values are ignored.
-  - use `PUM_flags` to use [PUM.ahk's](lib/PUM.ahk#L441) flag options, such as `hleft` for horizontally left-aligned, `hcenter` for horizontally centered, or `noanim` for no fade-in animation.
+  - use `PUM_flags` to use [PUM.ahk's](lib/PUM.ahk#L441) flag options, such as `hleft` for horizontally left-aligned, `hcenter` for horizontally centered, or `noanim` for no fade-in animation. You can use multiple flags like so `PUM_flags=hleft noanim`
 - Submenus
   - You can use a normal folder and customize it's icon (in properties)
     - Use a shortcut to a folder, if you want to be able to open it instead of a having submenu

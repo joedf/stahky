@@ -312,127 +312,30 @@ GetMonitorMouseIsIn() {
 	return ActiveMon
 }
 
-getTaskbarRect(hMonitor := "") {
-	; get task pos/size info
-	WinGetPos _tx, _ty, _tw, _th, ahk_class Shell_TrayWnd
-	
-	; MsgBox  %_tx% - %_ty% - %_tw% - %_th%
-	; Example value for standard 1080p screen with taskbar on the bottom
-	; 0 - 1032 - 1920 - 48
-	; On a 4k 3840x2400 px screen with taskbar on the bottom
-	; 0 - 2324 - 3840 - 76
-	; On a 4k 3840x2400 px screen with taskbar on the Left
-	; 0 - 0 - 155 - 2400
-	; On a 4k 3840x2400 px screen with taskbar on the Top
-	; 0 - 0 - 3840 - 76
-	; On a 4k 3840x2400 px screen with taskbar on the Right
-	; 3685 - 0 - 155 - 2400
-
-	; bugfix for when the start menu is shown (on Win 10 and 11), WinGetPos fails
-	; https://github.com/joedf/stahky/issues/15
-	; Use an alternative method to determine the whereabouts of the taskbar
-	; The correct calculation that handles mutiple monitors with different taskbar
-	; is far more complex, see https://stackoverflow.com/a/9826269/883015
-	; We'll just hope this is good enough for now...
-
-	; if WinGetPos failed, the values will be blank
-	if (StrLen(_tx) == 0) {
-		SysGet, Mon, Monitor, %hMonitor%
-		SysGet, MonW, MonitorWorkArea, %hMonitor%
-		; MsgBox %MonLeft% - %MonTop% - %MonRight% - %MonBottom%`n%MonWLeft% - %MonWTop% - %MonWRight% - %MonWBottom%
-		; Example value for standard 1080p screen with taskbar on the bottom
-		; 0 - 0 - 1920 - 1080
-		; 0 - 0 - 1920 - 1032
-		; On a 4k 3840x2400 px screen with taskbar on the bottom
-		; 0 - 0 - 3840 - 2400
-		; 0 - 0 - 3840 - 2324
-		; On a 4k 3840x2400 px screen with taskbar on the Left
-		; 0 - 0 - 3840 - 2400
-		; 155 - 0 - 3840 - 2400
-		; On a 4k 3840x2400 px screen with taskbar on the Top
-		; 0 - 0 - 3840 - 2400
-		; 0 - 76 - 3840 - 2400
-		; On a 4k 3840x2400 px screen with taskbar on the Right
-		; 0 - 0 - 3840 - 2400
-		; 0 - 0 - 3685 - 2400
-		
-		; screen info
-		sx := MonLeft
-		sy := MonTop
-		sw := Abs(MonRight - MonLeft)
-		sh := Abs(MonBottom - MonTop)
-		; client area info
-		cx := MonWLeft
-		cy := MonWTop
-		cw := Abs(MonWRight - MonWLeft)
-		ch := Abs(MonWBottom - MonWTop)
-
-		; taskbar info
-		tx := cx
-		ty := ch
-		if (cy != 0) {
-			ty := sx
-		}
-		tw := sw
-		th := Abs(ch - sh)
-		if (cw < sw) { ; vertical taskbar
-			th := ch
-			ty := sy
-			if (cx != 0) { ; taskbar on the Left
-				tw := cx
-				tx := sx
-			} else { ; on the right
-				tx := cw
-				tw := Abs(cw - sw)
-			}
-		}
-
-		return [tx, ty, tw, th]
-	}
-
-	; MsgBox  %_tx% - %_ty% - %_tw% - %_th%`n%tx% - %ty% - %tw% - %th%
-	
-	return [_tx, _ty, _tw, _th]
-}
-
-getOptimalPosToTaskbar(mx,my,menu_w) {
-	global DPIScaleRatio
-
-	; default menu pos to mouse pos
-	menu_x := mx, menu_y := my
-
-	; determine "Active" monitor/screen based on mouse position
+getOptimalMenuPos(mx, my) {
+	; based off of stacky's code, but is multi-monitor aware
+	; https://github.com/joedf/stahky/issues/21#issuecomment-2722264863
 	hMonitor := GetMonitorMouseIsIn()
+	SysGet, rWorkArea, MonitorWorkArea, %hMonitor%
 
-	; get task pos/size info
-	sz := getTaskbarRect(hMonitor)
-	tx := sz[1], ty := sz[2]
-	tw := sz[3], th := sz[4]
-	; MsgBox  %tx% - %ty% - %tw% - %th%
-
-	; Taskbar is horizontal
-	tolerance := 10 * DPIScaleRatio
-	if (tw > th) {
-		; same X for both cases
-		menu_x := mx - ( menu_w//DPIScaleRatio )
-		; get y pos
-		if (ty > tolerance) { ; Bottom
-			menu_y := ty
-		} else { ; Top
-			menu_y := ty + th
-		}
-	} else { ; Taskbar is vertical
-		; same Y for both cases
-		menu_y := my - (8*DPIScaleRatio)
-		; get x pos
-		if (tx > tolerance) { ; Right
-			menu_x := tx - ( menu_w//DPIScaleRatio ) - tw
-		} else { ; Left
-			menu_x := tx + tw
-		}
+	pos_x := mx, pos_y := my
+	if (pos_x < rWorkAreaLeft) {
+		pos_x := rWorkAreaLeft - 1
+	} else if (pos_x > rWorkAreaRight) {
+		pos_x := rWorkAreaRight - 1
 	}
 
-	return {x: menu_x, y: menu_y}
+	if (pos_y < rWorkAreaTop) {
+		pos_y := rWorkAreaTop - 1
+	} else if (pos_y > rWorkAreaBottom) {
+		pos_y := rWorkAreaBottom - 1
+	}
+	
+	; from testing, these flags don't seem to be needed
+	; SysGet, menuDropAlign, % (SM_MENUDROPALIGNMENT := 40)
+	; flags := menuDropAlign | (TPM_LEFTBUTTON := 0)
+	
+	return { x: pos_x, y: pos_y, flags: flags }
 }
 
 getItemIcon(fPath) {

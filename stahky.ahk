@@ -201,10 +201,9 @@ if (ShowAtMousePosition) {
 	menuPos := {x: mouseX, y: mouseY}
 	PUM_flags := "" ; ignore flags if this mode is used
 } else {
-	; Calculate optimal postion for the menu to be near the Taskbar
-	; menuWidth := menuTextMargin + icoSize + (2.5*menuMarginX)
-	menuWidth := 0 ; rely on PUM's built-in alignment flags, e.g. hleft or hcenter
-	menuPos := getOptimalPosToTaskbar(mouseX, mouseY, menuWidth)
+	; Calculate optimal postion for the menu to be,
+	; whether near the Taskbar or as a context menu elsewhere
+	menuPos := getOptimalMenuPos(mouseX, mouseY)
 }
 
 ; Display the PUM menu

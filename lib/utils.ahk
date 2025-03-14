@@ -99,10 +99,10 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 	; handle any submenus
 	if fExt in lnk
 	{
-		; display stachkys as submenus
+		; display stahkys as submenus
 		if (OutTarget := isStahkyFile(fPath)) {
 
-			; couldnt get from the stachky file config, so assume the target folder using the lnk's args
+			; couldnt get from the stahky file config, so assume the target folder using the lnk's args
 			if !FileExist(OutTarget) {
 				FileGetShortcut,%fPath%,,,OutArgs
 				OutTarget := Trim(OutArgs,""""`t)
@@ -111,7 +111,7 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 			; create and attach the stahky submenu, with a cap on recursion depth
 			if (recursion_CurrentDepth < STAHKY_MAX_DEPTH)
 			{
-				; recurse into sub-stachky-liciousnous
+				; recurse into sub-stahky-liciousnous
 				; Not using "%A_ThisFunc%", to support optional sorting from "MakeStahkyMenu" instead of "MakeStahkyMenu_subroutine"
 				MakeStahkyMenu( mItem["submenu"] := iPUM.CreateMenu( pMenuParams )
 					,OutTarget . "\*"

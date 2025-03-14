@@ -122,7 +122,7 @@ MakeStahkyMenu_subroutine( pMenu, fPath, iPUM, pMenuParams, recursion_CurrentDep
 				maxStahkyWarningMenu := (mItem["submenu"] := iPUM.CreateMenu( pMenuParams ))
 				maxStahkyWarningMenu.Add({ "name": "Overwhelmingly Stahky-licious! (Max = " . STAHKY_MAX_DEPTH . ")"
 					,"disabled": true
-					,"icon": A_ScriptFullPath })
+					,"icon": "shell32.dll:77" })
 			}
 		}
 	}
@@ -180,13 +180,32 @@ isStahkyFile(fPath) {
 	if _ext in lnk
 	{
 		FileGetShortcut,%fPath%,,,outArgs
-		_a := StrSplit(outArgs,A_Space)
-		if (_a[1] == G_STAHKY_ARG) {
-			;MsgBox, 48, , STAHKY-LICIOUS!
-			_ap := Trim(SubStr(outArgs,Strlen(G_STAHKY_ARG)+1)," """)
-			if FileExist(_ap)
-				return _ap
-			return true
+		args := StrSplit(outArgs,A_Space)
+		for n, arg in args
+		{
+			if (arg == G_STAHKY_ARG) {
+				;MsgBox, 48, , STAHKY-LICIOUS!
+				/*
+				Running as script example:
+					"C:\Program Files\AutoHotkey\v1.1.37.02\AutoHotkeyU64.exe" 
+					"C:\Users\joedf\code\stahky\stahky.ahk"
+					/stahky "C:\Users\joedf\code\stahky\~MY-LI~1"
+					/config "C:\Users\joedf\code\stahky\~stahky3.ini"
+				
+				Running as compiled example:
+					C:\Users\joedf\code\stahky\stahky.exe
+					/stahky "C:\Users\joedf\code\stahky\~my-links"
+					/config "C:\Users\joedf\code\stahky\stahky.ini"
+				*/
+				; okay to assume the path following the argument is wrapped in quotes
+				; since we wrap all argument paths in quotes now...
+				s1 := InStr(outArgs, " " . G_STAHKY_ARG . " """) + StrLen(G_STAHKY_ARG) + 3
+				s2 := InStr(outArgs, """", false, s1)
+				path := Trim(SubStr(outArgs,s1, s2-s1),"""")
+				if FileExist(path)
+					return path
+				return true
+			}
 		}
 	}
 	return false

@@ -1,5 +1,7 @@
 # ![*](res/app48.png) stahky
-A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Windows 10
+A take on [stacky](https://github.com/pawelt/stacky) in AutoHotkey (AHK) for Windows 10.  
+  
+Get the latest version [here](https://github.com/joedf/stahky/releases).
 
 ## Usage
 - Drag a folder with shortcuts, programs and files onto Stahky

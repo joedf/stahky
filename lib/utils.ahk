@@ -256,6 +256,13 @@ loadSettings(SCFile) {
 	IniRead, stextColor, %SCFile%,%APP_NAME%,menuSelectedTextColor, % TaskbarTColor ; B/W based on a luma/contrast formula
 	IniRead, textColor, %SCFile%,%APP_NAME%,menuTextColor, % TaskbarTColor
 	IniRead, PUM_flags, %SCFile%,%APP_NAME%,PUM_flags,hleft
+	; font options
+	IniRead, fontName, %SCFile%,%APP_NAME%,fontName,Segoe UI
+	IniRead, fontSize, %SCFile%,%APP_NAME%,fontSize,9
+	IniRead, fontWeight, %SCFile%,%APP_NAME%,fontWeight,400
+	IniRead, fontItalic, %SCFile%,%APP_NAME%,fontItalic,0
+	IniRead, fontStrike, %SCFile%,%APP_NAME%,fontStrike,0
+	IniRead, fontUnderline, %SCFile%,%APP_NAME%,fontUnderline,0
 }
 
 saveSettings(SCFile) {
@@ -279,6 +286,13 @@ saveSettings(SCFile) {
 	IniWrite, % stextColor, %SCFile%,%APP_NAME%,menuSelectedTextColor
 	IniWrite, % textColor, %SCFile%,%APP_NAME%,menuTextColor
 	IniWrite, % PUM_flags, %SCFile%,%APP_NAME%,PUM_flags
+	; font options
+	IniWrite, % fontName, %SCFile%,%APP_NAME%,fontName
+	IniWrite, % fontSize, %SCFile%,%APP_NAME%,fontSize
+	IniWrite, % fontWeight, %SCFile%,%APP_NAME%,fontWeight
+	IniWrite, % fontItalic, %SCFile%,%APP_NAME%,fontItalic
+	IniWrite, % fontStrike, %SCFile%,%APP_NAME%,fontStrike
+	IniWrite, % fontUnderline, %SCFile%,%APP_NAME%,fontUnderline
 }
 
 lightenColor(cHex, L:=2.64) {

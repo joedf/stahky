@@ -163,6 +163,14 @@ if (useDPIScaleRatio) {
 	menuMarginY *= DPIScaleRatio
 }
 
+; font options for the PUM menu item
+fontOptions := {name: fontName
+	,height: fontSize
+	,Weight: fontWeight
+	,Italic: fontItalic
+	,strike: fontStrike
+	,Underline: fontUnderline}
+
 ; parameters of the PUM object, the manager of the menus
 pumParams := {"SelMethod" : "fill" ;item selection method, may be frame,fill
 	,"selTColor"   : stextColor    ;selection text color
@@ -175,6 +183,7 @@ pumParams := {"SelMethod" : "fill" ;item selection method, may be frame,fill
 	,"onrun"       : "PUM_out"     ;function which will be called when any item clicked with left mouse button
 	,"onshow"      : "PUM_out"     ;function which will be called before any menu shown using Show method
 	,"onclose"     : "Pum_out"     ;function called just before quitting from Show method
+	,"pumfont"     : fontOptions   ;font options, LOGFONT: https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-logfonta
 	,mnemonicCMD   : "select"}
 
 ; PUM_Menu parameters

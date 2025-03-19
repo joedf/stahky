@@ -14,8 +14,15 @@ Get the latest version [here](https://github.com/joedf/stahky/releases).
   - Colors are determined automatically on the first run
   - Edit stahky.ini for specific colors, offsets (x or y), use DPI for size and position calculation, ...
   - The `SortFoldersFirst` option allows you to have folders appear first at the top of each menu accordingly.
-  - Use `PUM_flags` to use [PUM.ahk's](lib/PUM.ahk#L441) flag options, such as `hleft` for horizontally left-aligned, `hcenter` for horizontally centered, or `noanim` for no fade-in animation. You can use multiple flags in the ini config file like so `PUM_flags=hleft noanim`
+  - Use `PUM_flags` to use [PUM.ahk's flag options](res/docs/PUM_documentation.pdf), such as `hleft` for horizontally left-aligned, `hcenter` for horizontally centered, or `noanim` for no fade-in animation. You can use multiple flags in the ini config file like so `PUM_flags=hleft noanim`
   - Use `ShowAtMousePosition=1` in the ini config file to have the menu show up at the current mouse postion regardless where the taskbar is. However if this mode is used, `PUM_flags` values are ignored.
+  - The font can customized with the following ini config file options:
+      - `fontName` (default is `Segoe UI`)
+      - `fontSize` (default is `9`)
+      - `fontWeight` (default is `400`)
+      - `fontItalic` (default is `0` for false)
+      - `fontStrike` (default is `0` for false)
+      - `fontUnderline` (default is `0` for false)
 - Submenus
   - You can use a normal folder and customize it's icon (in properties)
     - Use a shortcut to a folder, if you want to be able to open it instead of a having submenu

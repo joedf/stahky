@@ -1,16 +1,18 @@
 ﻿/* 
 PUM class represents popup menu manager
+by Deo (slightly modified by joedf)
 
 Documentation available here
-http://www.autohotkey.net/~Deo/index.html
+dead link: http://www.autohotkey.net/~Deo/index.html
+forum link: https://www.autohotkey.com/board/topic/73599-ahk-l-pum-owner-drawn-object-based-popup-menu/
 */
 class PUM extends PUM_base
 {
   __New( params = "" )
   {
       this.instance := 1
+      this.SetParams( params ) ;joedf: moved this line before Init(), so pumfont options work
       this.Init()
-      this.SetParams( params )
       this.gdipToken := pumAPI.Gdip_Startup()
   }
   
